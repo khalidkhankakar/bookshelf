@@ -1,30 +1,73 @@
 import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github";
+
+import authConfig from "./auth.config";
+import { findUserByEmail } from "./lib/actions/user.actions";
+import { db } from "./lib/db/drizzle";
+import { UserTable } from "./lib/db/schema";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
-    GitHubProvider({
-      clientId: process.env.AUTH_GITHUB_ID,
-      clientSecret: process.env.AUTH_GITHUB_SECRET,
-    }),
-  ],
   callbacks: {
-    async signIn({ account, profile }) {
-      console.log(account, profile);
+    async signIn({ user, account }) {
+      // find user by email
+      let userExists;
+      if (user?.email) {
+        userExists = await findUserByEmail(user?.email);
+        if (userExists && userExists?.provider !== account?.provider) return false;
+      }
+      if (
+        (account?.provider === "google" || account?.provider === "github") &&
+        !userExists &&
+        user?.email &&
+        user?.name &&
+        user?.image &&
+        user?.id
+      ) {
+        // create the user in the database
+        const response = await db
+          .insert(UserTable)
+          .values({
+            id: user?.id,
+            email: user?.email,
+            name: user?.name,
+            emailVerified: true,
+            image: user?.image,
+            provider: account?.provider,
+          })
+          .returning();
+        if (!response) return false;
+        return true;
+      }
+
+      if (
+        userExists?.provider === "credentials" &&
+        !userExists?.emailVerified
+      ) {
+        // TODO: send email
+        return false;
+      }
+
       return true;
     },
+
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+
+    async jwt({ token }) {
+      return token;
+    },
   },
+  ...authConfig,
   pages: {
-    signIn: "/sign-in",
-    signOut: "/sign-out",
+    signIn: "/auth/sign-in",
+    error: "/auth/auth-error",
   },
   secret: process.env.AUTH_SECRET,
   session: {
     strategy: "jwt",
+    maxAge: 24 * 60 * 60,
   },
 });

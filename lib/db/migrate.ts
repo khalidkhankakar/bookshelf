@@ -1,8 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { migrate } from 'drizzle-orm/neon-http/migrator';
-
-dotenv.config();
+dotenv.config({ path: '.env.local' });
 import { db } from './drizzle';
 
 
