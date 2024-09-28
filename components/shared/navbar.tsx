@@ -7,7 +7,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <>
-      <nav className="flex items-center justify-between py-4">
+      <nav className="flex items-center shadow-lg shadow-white/10 justify-between p-4">
         <div className="flex items-center">
           <Link href="/" className="text-2xl  font-bold text-[#00E599]">
             BOOKSHELF
@@ -59,13 +59,13 @@ const Navbar = () => {
           <NavItem href="/" title="Resources" hasDropdown /> 
           <div className="mt-4 space-y-2">
             <Link
-              href="/login"
+              href="/auth/sign-in"
               className="block text-gray-300 hover:text-white"
             >
               Log In
             </Link>
             <Link
-              href="/signup"
+              href="/auth/sign-up"
               className="block bg-[#00E599] text-black px-4 py-2 rounded-md hover:bg-[#00C480] transition duration-300 text-center"
             >
               Sign Up

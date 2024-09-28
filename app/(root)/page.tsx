@@ -15,13 +15,13 @@ export default async function Home() {
       </p>
       <div className="flex gap-x-2 items-center justify-center">
         <Link
-          href="/get-started"
+          href="/explore"
           className="bg-[#1e966e] text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-[#195a43] transition duration-300"
         >
           Explore
         </Link>
         <Link
-          href="/get-started"
+          href="/contribute"
           className="bg-[#b204f7] text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-[#531c69] transition duration-300"
         >
           Contribute
