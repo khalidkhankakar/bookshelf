@@ -34,12 +34,7 @@ export const signUpSchema = z.object({
       .refine((files) => files && files.length > 0, "PDF is required"),
     isFree: z.boolean(),
     price: z
-    .string()
-    .transform((value) => Number(value))
-    .refine((value) => !isNaN(value) && value >= 0, {
-      message: "Price must be a valid number and greater than or equal to 0",
-    })
-    .optional(),
+    .string().optional(),
     category: z.string().min(1, "Category is required"),
     publisher: z.string().min(1, "Publisher is required"),
     publishedAt: z.string().min(1, "Published date is required"),

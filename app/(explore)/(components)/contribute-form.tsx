@@ -1,5 +1,4 @@
 "use client";
-
 import CustomFormField, {
   CustomFormFieldType,
 } from "@/components/shared/custom-form-field";
@@ -14,20 +13,21 @@ import {
 } from "@/components/ui/form";
 import { SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { uploadFile } from "@/lib/actions/firebase.actions";
 import { bookCategory } from "@/lib/constant";
 import { BookFormValidation } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-
+import { uploadBook } from "@/lib/actions/user.actions";
 import { z } from "zod";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
+
 
 const ContributeForm = () => {
-  const [progress, setProgress] = useState<number>(0);
-  const [downloadURL, setDownloadURL] = useState<string | null>(null);
-  const [uploading, setUploading] = useState<boolean>(false);
-
+  const { toast } = useToast()
+  const {data:session} = useSession();
+  const [isPending, startTransition] = useTransition();
   const [isFree, setIsFree] = useState(false);
   const form = useForm<z.infer<typeof BookFormValidation>>({
     resolver: zodResolver(BookFormValidation),
@@ -36,27 +36,36 @@ const ContributeForm = () => {
       description: "",
       author: "",
       isFree: false,
-      price: 0,
+      price: '0',
       category: "",
       publisher: "",
       publishedAt: "",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof BookFormValidation>) => {
-    console.log(data);
-    uploadFile(
-      data.bookCoverImg[0],
-      (progress) => setProgress(progress), // Update progress
-      ({ downloadURL }) => {
-        setDownloadURL(downloadURL);
-        setUploading(false);
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        setUploading(false);
-      }
-    );
+  const onSubmit = async (values: z.infer<typeof BookFormValidation>) => {
+    if(!session || !session?.user || !session?.user?.id) return;
+    const formData = new FormData();
+    formData.append('userId', session?.user?.id as string);
+    formData.append('title', values.title);
+    formData.append('description', values.description);
+    formData.append('author', values.author);
+    formData.append('category', values.category);
+    formData.append('publisher', values.publisher);
+    formData.append('publishedAt', values.publishedAt);
+    formData.append('isFree', String(values.isFree)); // Convert boolean to string
+    formData.append('price', values.isFree ? '0' : String(values.price)); // Convert number to string
+    formData.append('bookCoverImg', values.bookCoverImg[0]); // File
+    formData.append('bookPDF', values.bookPDF[0]); // File
+
+    startTransition(() => {
+      uploadBook(formData)?.then((res:{success:boolean, message:string}) => {
+        return res.success ? toast({title: res.message}) : toast({title: res.message, variant: 'destructive'})
+        })
+        .catch((err: any) => {
+       return toast({title: err, variant: 'destructive'})
+        });
+    });
   };
 
   return (
@@ -132,7 +141,6 @@ const ContributeForm = () => {
               control={form.control}
               name="price"
               label="Price"
-              inputType="number"
               placeholder="$15"
             />
           )}
@@ -167,10 +175,7 @@ const ContributeForm = () => {
             inputType="date"
           />
 
-          <Button type="submit">{uploading ? "Uploading..." : "Upload"}</Button> 
-          <div>{progress}% Uploaded </div>
-          <p>{downloadURL}</p>
-
+          <Button type="submit">{isPending ? "Uploading..." : "Upload"}</Button>
         </form>
       </Form>
     </div>
