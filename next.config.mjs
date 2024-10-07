@@ -9,7 +9,7 @@ const nextConfig = {
           },
           {
             protocol: 'http',
-            hostname: "books.google.com",
+            hostname: 'books.google.com',
           },
           {
             protocol: 'https',
@@ -19,6 +19,11 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'lh3.googleusercontent.com',
           },
+          {
+            protocol: 'https',
+            hostname:  'firebasestorage.googleapis.com',
+          },
+
 
         ],
       },

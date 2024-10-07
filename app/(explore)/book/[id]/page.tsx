@@ -1,22 +1,24 @@
 import React from 'react'
 import BookDetails from '../../(components)/book-details'
+import { fetchBookById } from '@/lib/actions/books-api.actions'
 
-const page = async() => {
-    await new Promise(resolve => setTimeout(resolve, 6000));
-    
+const page = async({params}:{params:{id:string}}) => {
+   const book = await fetchBookById(params.id)
+   if(!book) {
+    return <div className='text-white'>Book not found</div>
+   }
   return (
     <div>
         <BookDetails 
-          title ={"The Great Gatsby"}
-          author ={"F. Scott Fitzgerald"}
-          description ={"The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, near New York City, the novel depicts first-person narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan."}
-          category ={"Classic Literature"}
-          publishedAt ={"April 10, 1925"}
-          publisher ={"Charles Scribner's Sons"}
+          title ={book[0].title}
+          author ={book[0].author}
+          description ={book[0].description}
+          category ={book[0].category}
+          publishedAt ={book[0].publishedAt?.toString().split('T')[0] }
+          publisher ={book[0].publisher}
           rating ={4.5}
-          isFree ={false}
-          coverImage ={"https://dummyimage.com/720x400"}
-        
+          isFree ={(book[0].isFree || book[0].isFree !== null) ? true : false}
+          coverImage ={book[0].image}
         />
       
     </div>

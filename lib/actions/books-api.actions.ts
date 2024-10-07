@@ -1,3 +1,7 @@
+import { eq } from "drizzle-orm";
+import { db } from "../db/drizzle";
+import { BookTable } from "../db/schema";
+
 // Function to fetch books by category from Google Books API
 export const fetchBooksByCategory = async function fetchBooksByCategory(category:string) {
     const apiKey =process.env.GOOGLE_BOOKS_API_KEY; // Replace with your Google Books API key
@@ -14,9 +18,14 @@ export const fetchBooksByCategory = async function fetchBooksByCategory(category
     }
 }
 
-// // Call the function with 5 different categories
-// fetchBooksByCategory('Fiction');
-// fetchBooksByCategory('Science');
-// fetchBooksByCategory('History');
-// fetchBooksByCategory('Technology');
-// fetchBooksByCategory('Philosophy');
+
+export const fetchBookById = async (id:string)=>{
+    try {
+        const book = await db.select().from(BookTable).where(eq(BookTable.id,id));
+        console.log(book);
+        return book;
+    } catch (error) {
+        console.log(error);   
+    }
+
+}

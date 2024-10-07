@@ -38,6 +38,7 @@ const Navbar = () => {
               fullName={session?.user?.name || ""}
               avatarUrl={session?.user?.image || ""}
               email={session?.user?.email || ""}
+              userId={session?.user?.id || ''}
             />
           ) : (
             <div className="hidden md:flex items-center space-x-4">
@@ -63,6 +64,7 @@ const Navbar = () => {
               fullName={session?.user?.name || ""}
               avatarUrl={session?.user?.image || ""}
               email={session?.user?.email || ""}
+              userId={session?.user?.id || ''}
             />
 }
         <button
