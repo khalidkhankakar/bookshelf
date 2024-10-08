@@ -86,7 +86,7 @@ export default function ProfilePopover({
             className="w-full justify-start text-white hover:bg-gray-800"
           >
             <Edit2 className="mr-2 h-4 w-4 text-white" />
-            <p className="text-white">Edit Profile</p>
+            <p className="text-white">Update Profile</p>
           </Button>
         </Link>
 

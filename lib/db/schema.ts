@@ -47,7 +47,11 @@ export const UserTable = pgTable(
     password: varchar("password"),
     provider: providerEnum("provider").notNull(),
     emailVerified: boolean("emailVerified").default(false),
-
+    twitterUrl:varchar('twitterUrl'),
+    instagramUrl:varchar('instagramUrl'),
+    bio:varchar('bio'),
+    location:varchar('location'),
+    coverImage:varchar('coverImage'),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },

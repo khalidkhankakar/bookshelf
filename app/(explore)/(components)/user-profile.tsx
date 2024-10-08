@@ -1,22 +1,26 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Twitter, Instagram, Edit, Book } from "lucide-react"
-import Image from "next/image"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MapPin, Twitter, Instagram, Edit, Book } from "lucide-react";
+import Image from "next/image";
+import BookCard from "./book-card";
+import { auth } from "@/auth";
 
 interface UserProfileProps {
-  name: string
-  email: string
-  bio?: string
-  location?: string
-  twitterHandle?: string
-  instagramHandle?: string
-  avatarUrl: string
-  coverImageUrl: string
-  books: Array<{ id: string; title: string; coverUrl: string }>
+  userId: string;
+  name: string;
+  email: string;
+  bio?: string;
+  location?: string;
+  twitterHandle?: string;
+  instagramHandle?: string;
+  avatarUrl: string;
+  coverImageUrl: string;
+  books: any[];
 }
 
-export default function UserProfile({
+export default async function UserProfile({
+  userId,
   name,
   email,
   bio,
@@ -25,8 +29,10 @@ export default function UserProfile({
   instagramHandle,
   avatarUrl,
   coverImageUrl,
-  books
+  books,
 }: UserProfileProps) {
+  const session = await auth();
+
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       <div className="relative h-48 md:h-64 lg:h-80">
@@ -43,7 +49,12 @@ export default function UserProfile({
         <div className="relative -mt-20 mb-8 flex flex-col items-center md:flex-row md:items-end">
           <Avatar className="w-32 h-32 border-4 border-gray-900">
             <AvatarImage src={avatarUrl} alt={name} />
-            <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            <AvatarFallback>
+              {name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </AvatarFallback>
           </Avatar>
           <div className="mt-4 md:ml-6 md:mt-0 text-center md:text-left">
             <h1 className="text-3xl font-bold">{name}</h1>
@@ -55,12 +66,14 @@ export default function UserProfile({
               </p>
             )}
           </div>
-          <div className="mt-4 md:ml-auto">
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Profile
-            </Button>
-          </div>
+          {session?.user?.id === userId && (
+            <div className="mt-4 md:ml-auto">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Profile
+              </Button>
+            </div>
+          )}
         </div>
         {bio && (
           <Card className="mb-8 bg-gray-800 border-gray-700">
@@ -77,8 +90,7 @@ export default function UserProfile({
               rel="noopener noreferrer"
               className="flex items-center text-blue-400 hover:text-blue-300"
             >
-              <Twitter className="w-5 h-5 mr-2" />
-              @{twitterHandle}
+              <Twitter className="w-5 h-5 mr-2" />@{twitterHandle}
             </a>
           )}
           {instagramHandle && (
@@ -88,8 +100,7 @@ export default function UserProfile({
               rel="noopener noreferrer"
               className="flex items-center text-pink-400 hover:text-pink-300"
             >
-              <Instagram className="w-5 h-5 mr-2" />
-              @{instagramHandle}
+              <Instagram className="w-5 h-5 mr-2" />@{instagramHandle}
             </a>
           )}
         </div>
@@ -98,24 +109,25 @@ export default function UserProfile({
             <Book className="w-6 h-6 mr-2" />
             Created Books
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {books.map((book) => (
-              <Card key={book.id} className="bg-gray-800 border-gray-700">
-                <CardContent className="p-4">
-                  <Image
-                    src={book.coverUrl}
-                    alt={book.title}
-                    className="w-full h-48 object-cover mb-2 rounded"
-                    width={300}
-                    height={300}
-                  />
-                  <p className="text-sm font-medium truncate">{book.title}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {books.length <= 0 ? (
+            <p className="text-gray-300 text-xl font-semibold">
+              No books created
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {books.map((book) => (
+                <BookCard
+                  key={book.book.id}
+                  bookId={book.book.id}
+                  bookTitle={book.book.title}
+                  bookAuthors={book.book.author}
+                  bookImage={book.book.image}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }

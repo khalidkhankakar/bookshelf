@@ -4,7 +4,8 @@ import { AUTH_API_PREFIX, AUTH_ROUTES, PUBLIC_ROUTES } from "./route";
 
 
 export async function middleware(req: NextRequest) {
-    
+
+
     const {nextUrl} = req;
 
     const authToken = await getToken({req,secret:process.env.AUTH_SECRET || "QK3GhEGDarNrIscb8uRNBkSBzQxBvXXyB3MD8A333so="})

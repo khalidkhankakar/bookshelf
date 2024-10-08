@@ -1,21 +1,31 @@
 import React from 'react'
 import UserProfile from '../../(components)/user-profile'
+import { fetchUserProfileById } from '@/lib/actions/user.actions';
 
 const page = async ({params}:{params:{id:string}}) => {
-  await new Promise((resolve)=>setTimeout(resolve,6000))
+
+  const id = params.id;
+  console.log({id})
+
+  if(!id) return <div>User not found</div>
+
+  const user = await fetchUserProfileById(id)
+  
+  if(!user) return <div>User not found</div>
   
   return (
     <div className='text-white'>
     
-    <UserProfile name='Khalid Khan' 
-    email={'qIi6g@example.com'}
-    bio={'    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ratione assumenda animi tempora quidem voluptas delectus autem, nam iusto, itaque dolores illum earum culpa quo corrupti non quae dignissimos! Non, veritatis?'}
-    location={'Killa saifullah'}
-    twitterHandle={'khalid_khan'}
-    instagramHandle={'khalid_khan'}
-    avatarUrl={'https://khliad'}
-    coverImageUrl={'https://dummyimage.com/720x400'}
-    books={[{id:'1', title:'khaid', coverUrl:'https://dummyimage.com/720x400'}]}
+    <UserProfile name={user.name}
+    email={user.email}
+    userId={id}
+    bio={user?.bio || ''}
+    location={user?.location || ''}
+    twitterHandle={user?.twitterUrl ||''}
+    instagramHandle={user?.instagramUrl || ''}
+    avatarUrl={user.image || 'https://dummyimage.com/720x400'}
+    coverImageUrl={user.coverImage || 'https://dummyimage.com/720x400'}
+    books={user.userBooks || []}
     />
 
     </div>

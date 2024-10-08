@@ -43,3 +43,14 @@ export const signUpSchema = z.object({
 
 
 
+ export const UserUpdateFormSchema = z.object({
+    name: z.string().min(2, {
+      message: "Name must be at least 2 characters.",
+    }),
+    location: z.string().optional(),
+    twitterUrl: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
+    instagramUrl: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
+    bio: z.string().max(500, {
+      message: "Bio must not exceed 500 characters.",
+    }).optional(),
+  })

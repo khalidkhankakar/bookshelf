@@ -19,6 +19,7 @@ const page = async({params}:{params:{id:string}}) => {
           rating ={4.5}
           isFree ={(book[0].isFree || book[0].isFree !== null) ? true : false}
           coverImage ={book[0].image}
+          pdfUrl={book[0].bookPdf}
         />
       
     </div>

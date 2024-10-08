@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 import Image from "next/image"
 import TooltipProvider from "@/components/shared/tooltip-provider"
+import { useRouter } from "next/navigation"
 
 interface BookDetailsProps {
   title: string
@@ -16,6 +17,7 @@ interface BookDetailsProps {
   rating: number
   isFree: boolean
   coverImage: string
+  pdfUrl?: string
 }
 
 export default function BookDetails({
@@ -28,10 +30,20 @@ export default function BookDetails({
     category,
     isFree ,
     coverImage,
+    pdfUrl
 }: BookDetailsProps) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [toRead, setToRead] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
+  const router = useRouter();
+
+  const handleOpenPDF = () => {
+    if(!pdfUrl) return; // PDF link you want to open
+    const encodeUrl = encodeURIComponent(pdfUrl);
+    router.push(`/book/viewer/${encodeUrl}`);
+  }
+  
+
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -112,7 +124,7 @@ export default function BookDetails({
           <Badge variant="secondary" className="mb-4">
             {category}
           </Badge>
-          <p className="text-gray-700 mb-4">{description}</p>
+          <p className="text-gray-400 mb-4">{description}</p>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <h2 className="font-semibold">Published</h2>
@@ -129,7 +141,7 @@ export default function BookDetails({
                 <Button className="bg-black text-white hover:bg-gray-800">
                   <Download className="mr-2 h-4 w-4" /> Download
                 </Button>
-                <Button variant="outline" className="border-black text-black hover:bg-gray-100">
+                <Button onClick={handleOpenPDF}  variant="outline" className="border-black text-black hover:bg-gray-100">
                   <Eye className="mr-2 h-4 w-4" /> Preview
                 </Button>
               </>
