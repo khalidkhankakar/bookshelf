@@ -22,9 +22,11 @@ import { uploadBook } from "@/lib/actions/user.actions";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 
 const ContributeForm = () => {
+  const router = useRouter()
   const { toast } = useToast()
   const {data:session} = useSession();
   const [isPending, startTransition] = useTransition();
@@ -60,7 +62,16 @@ const ContributeForm = () => {
 
     startTransition(() => {
       uploadBook(formData)?.then((res:{success:boolean, message:string}) => {
-        return res.success ? toast({title: res.message}) : toast({title: res.message, variant: 'destructive'})
+        if(res.success){
+          toast({
+            title: res.message,
+          })
+          return router.push('/explore')
+        }
+        return toast({
+          title: 'Upload Failed',
+          variant: 'destructive',
+        })
         })
         .catch((err: any) => {
        return toast({title: err, variant: 'destructive'})

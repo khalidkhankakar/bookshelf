@@ -1,12 +1,19 @@
 "use server";
 
 import { z } from "zod";
-import { BookFormValidation, signUpSchema, UserUpdateFormSchema } from "../types";
+import {
+  BookFormValidation,
+  signUpSchema,
+  UserUpdateFormSchema,
+} from "../types";
 import bycrypt from "bcryptjs";
 import { db } from "../db/drizzle";
 import {
   BookTable,
   UserBooksTable,
+  userHaveToReadBooksTable,
+  userLikedBooksTable,
+  userSavedBooksTable,
   UserTable,
   VerificationTokenTable,
 } from "../db/schema";
@@ -16,6 +23,7 @@ import { sendEmail } from "./resend-email.actions";
 import { storage } from "@/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { revalidatePath } from "next/cache";
+
 
 export const createUser = async (values: z.infer<typeof signUpSchema>) => {
   const validatedValues = signUpSchema.safeParse(values);
@@ -87,11 +95,96 @@ export const fetchUserProfileById = async (id: string) => {
           book: true,
         },
       },
+
+      savedBooks: {
+        with: {
+          book: true,
+        },
+      },
+      likedBooks: {
+        with: {
+          book: true,
+        },
+      },
+      haveToReadBooks: {
+        with: {
+          book: true,
+        },
+      },
+      currentlyReadingBooks: {
+        with: {
+          book: true,
+        },
+      },
     },
   });
 
   return user;
 };
+
+export const addAndRemoveBookInSave = async (type:boolean, bookId:string,userId:string)=>{
+  if(type){
+    // remove 
+   const deletedUser =  await db.delete(userSavedBooksTable).where(eq(userSavedBooksTable.bookId, bookId))
+   if(deletedUser){
+    revalidatePath(`book/${bookId}`)
+    return {success:true, message:'Remove successfully'}
+   }
+    return {success:false, message:'Unable to remove something went wrong'}
+
+
+  }
+  // add
+  const insertedUser = await db.insert(userSavedBooksTable).values({bookId,userId})
+  if(insertedUser){
+    revalidatePath(`book/${bookId}`)
+    return {success:true, message:'Add successfully'}
+  }
+  return {success:false, message:'Unable to add something went wrong'}
+}
+
+export const addAndRemoveBookInLike = async (type:boolean, bookId:string,userId:string)=>{
+  if(type){
+    // remove 
+   const deletedUser =  await db.delete(userLikedBooksTable).where(eq(userLikedBooksTable.bookId, bookId))
+   if(deletedUser){
+    revalidatePath(`book/${bookId}`)
+    return {success:true, message:'Unliked successfully'}
+   }
+    return {success:false, message:'Unable to remove something went wrong'}
+
+
+  }
+  // add
+  const insertedUser = await db.insert(userLikedBooksTable).values({bookId,userId})
+  if(insertedUser){
+    revalidatePath(`book/${bookId}`)
+    return {success:true, message:'Liked successfully'}
+  }
+  return {success:false, message:'Unable to add something went wrong'}
+}
+
+export const addAndRemoveBookInHaveToRead = async (type:boolean, bookId:string,userId:string)=>{
+  if(type){
+    // remove 
+   const deletedUser =  await db.delete(userHaveToReadBooksTable).where(eq(userHaveToReadBooksTable.bookId, bookId))
+   if(deletedUser){
+    revalidatePath(`book/${bookId}`)
+    return {success:true, message:'Remove from have to read successfully'}
+   }
+    return {success:false, message:'Unable to remove something went wrong'}
+
+
+  }
+  // add
+  const insertedUser = await db.insert(userHaveToReadBooksTable).values({bookId,userId})
+  if(insertedUser){
+    revalidatePath(`book/${bookId}`)
+    return {success:true, message:'Added to have to read successfully'}
+  }
+  return {success:false, message:'Unable to add something went wrong'}
+}
+
 
 export const uploadBook = async (formData: FormData) => {
   const userId = formData.get("userId");
@@ -189,6 +282,9 @@ export const uploadBook = async (formData: FormData) => {
       .insert(UserBooksTable)
       .values({ userId: userIdStr, bookId: uploadedBookId[0].id });
 
+    revalidatePath(`/profile/${userId}`);
+    revalidatePath("/explore");
+
     return { success: true, message: "Upload successful" };
   } catch (insertError) {
     console.error("Database insert error:", insertError);
@@ -199,14 +295,9 @@ export const uploadBook = async (formData: FormData) => {
     };
   }
 };
-
-
-
-
-
 type FormDataInput = {
   get(key: string): FormDataEntryValue | null;
-}
+};
 
 export const updateUserProfile = async (formData: FormDataInput) => {
   const userId = formData.get("userId") as string | null;
@@ -214,10 +305,10 @@ export const updateUserProfile = async (formData: FormDataInput) => {
 
   const { success, data, error } = UserUpdateFormSchema.safeParse({
     name: formData.get("name") as string | null,
-    location: (formData.get("location") as string | null) || '',
-    twitterUrl: (formData.get("twitterUrl") as string | null) || '',
-    instagramUrl: (formData.get("instagramUrl") as string | null) || '',
-    bio: (formData.get("bio") as string | null) || '',
+    location: (formData.get("location") as string | null) || "",
+    twitterUrl: (formData.get("twitterUrl") as string | null) || "",
+    instagramUrl: (formData.get("instagramUrl") as string | null) || "",
+    bio: (formData.get("bio") as string | null) || "",
   });
 
   if (!success) {
@@ -228,46 +319,56 @@ export const updateUserProfile = async (formData: FormDataInput) => {
     };
   }
 
-  console.log('profileImg', typeof formData.get("profileImage"));
-  console.log('coverImg', typeof formData.get("coverImage"));
+  console.log("profileImg", typeof formData.get("profileImage"));
+  console.log("coverImg", typeof formData.get("coverImage"));
 
   let userProfileImgUrl: string | undefined;
   let userCoverImgUrl: string | undefined;
 
   // upload the user profile image
-  const profileImageFile = formData.get('profileImage') as File | null;
-  if (profileImageFile && typeof profileImageFile === 'object') {
-    const profileImageRef = ref(storage, `user/profile/${profileImageFile.name}`);
+  const profileImageFile = formData.get("profileImage") as File | null;
+  if (profileImageFile && typeof profileImageFile === "object") {
+    const profileImageRef = ref(
+      storage,
+      `user/profile/${profileImageFile.name}`
+    );
     await uploadBytesResumable(profileImageRef, profileImageFile);
     userProfileImgUrl = await getDownloadURL(profileImageRef);
   }
 
   // upload the cover image
-  const coverImageFile = formData.get('coverImage') as File | null;
-  if (coverImageFile && typeof coverImageFile === 'object') {
-    const coverImageRef = ref(storage, `user/coverImage/${coverImageFile.name}`);
+  const coverImageFile = formData.get("coverImage") as File | null;
+  if (coverImageFile && typeof coverImageFile === "object") {
+    const coverImageRef = ref(
+      storage,
+      `user/coverImage/${coverImageFile.name}`
+    );
     await uploadBytesResumable(coverImageRef, coverImageFile);
     userCoverImgUrl = await getDownloadURL(coverImageRef);
   }
 
   const updatedData = {
-    name: data.name || '',
-    location: data.location || '',
-    twitterUrl: data.twitterUrl || '',
-    instagramUrl: data.instagramUrl || '',
-    bio: data.bio || '',
-    image: userProfileImgUrl || (formData.get('profileImage') as string | null) || '',
-    coverImage: userCoverImgUrl || (formData.get('coverImage') as string | null) || '',
+    name: data.name || "",
+    location: data.location || "",
+    twitterUrl: data.twitterUrl || "",
+    instagramUrl: data.instagramUrl || "",
+    bio: data.bio || "",
+    image:
+      userProfileImgUrl ||
+      (formData.get("profileImage") as string | null) ||
+      "",
+    coverImage:
+      userCoverImgUrl || (formData.get("coverImage") as string | null) || "",
   };
 
   // update the user in the database
-  const updatedUser = await db.update(UserTable)
+  await db
+    .update(UserTable)
     .set(updatedData)
     .where(eq(UserTable.id, userId))
     .returning();
 
-  console.log({ updatedUser });
-  revalidatePath(`/profile/${userId}`)
+  revalidatePath(`/profile/${userId}`);
   return {
     success: true,
     message: "Updated successfully",

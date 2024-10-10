@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS "UserTable" (
 	"twitterUrl" varchar,
 	"instagramUrl" varchar,
 	"bio" varchar,
+	"location" varchar,
 	"coverImage" varchar,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),

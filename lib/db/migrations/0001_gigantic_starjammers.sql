@@ -1,1 +1,0 @@
-ALTER TABLE "UserTable" ADD COLUMN "location" varchar;

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import {  useState, useTransition } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -34,6 +34,7 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
     const {data:session} = useSession()
     const router = useRouter()
     const {toast} = useToast()
+    const [isPending, startTransition] = useTransition()
 
   const [profileImage, setProfileImage] = useState<string | File | null>(parseUserData?.image)
   const [coverImage, setCoverImage] = useState<string | File | null>(parseUserData?.coverImage)
@@ -68,8 +69,25 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
     coverImage && fromData.append('coverImage',coverImage)
     fromData.append('userId', session?.user?.id as string)
 
-    const res = await updateUserProfile(fromData)
-console.log({res})
+    
+
+    startTransition(() => {
+      updateUserProfile(fromData)?.then((res:{success:boolean, message:string}) => {
+        if(res.success){
+          toast({
+            title: res.message,
+          })
+          return router.push(`/profile/${userId}`)
+        }
+        return toast({
+          title: 'Upload Failed',
+          variant: 'destructive',
+        })
+        })
+        .catch((err: any) => {
+       return toast({title: err, variant: 'destructive'})
+        });
+    });
 
   }
 
@@ -237,7 +255,7 @@ console.log({res})
               </FormItem>
             )}
           />
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Update Profile</Button>
+          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">{isPending? 'Updating...' : 'Update Profile'}</Button>
         </form>
       </Form>
     </div>

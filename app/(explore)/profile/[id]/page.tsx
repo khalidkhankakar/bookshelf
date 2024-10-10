@@ -12,7 +12,7 @@ const page = async ({params}:{params:{id:string}}) => {
   const user = await fetchUserProfileById(id)
   
   if(!user) return <div>User not found</div>
-  
+
   return (
     <div className='text-white'>
     

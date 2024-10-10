@@ -1,13 +1,14 @@
 'use client'
-import { Star, Download, Eye, ShoppingCart, Heart,  BookMarked, Bookmark } from "lucide-react"
+import { Star, Download, Eye, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
 import Image from "next/image"
-import TooltipProvider from "@/components/shared/tooltip-provider"
 import { useRouter } from "next/navigation"
+import ReactionButton from "./reaction-button"
+
 
 interface BookDetailsProps {
+  bookId:string
   title: string
   author: string
   description: string
@@ -18,9 +19,13 @@ interface BookDetailsProps {
   isFree: boolean
   coverImage: string
   pdfUrl?: string
+  saveBookArr:any[]
+haveToReadBookArr:any[]
+likesBookArr:any[]
 }
 
 export default function BookDetails({
+  bookId,
     title ,
     author ,
     description ,
@@ -30,11 +35,13 @@ export default function BookDetails({
     category,
     isFree ,
     coverImage,
-    pdfUrl
+    pdfUrl,
+    saveBookArr,
+    haveToReadBookArr,
+    likesBookArr
 }: BookDetailsProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [toRead, setToRead] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
+
+
   const router = useRouter();
 
   const handleOpenPDF = () => {
@@ -76,45 +83,14 @@ export default function BookDetails({
             </div>
             <div className="flex gap-2 ">
     
-            <TooltipProvider title="Favorite" >
 
-              <Button
-                variant="outline"
-                size="icon"
-                 className="text-white bg-black hover:bg-slate-400"
-                onClick={() => setIsFavorite(!isFavorite)}
-                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-              >
-                <Heart className={`h-4 w-4 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
-              </Button>
-                </TooltipProvider>
-              <TooltipProvider title="To Read" >
-
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-white bg-black hover:bg-slate-400"
-                onClick={() => setToRead(!toRead)}
-                aria-label={toRead ? "Remove from to-read list" : "Add to to-read list"}
-              >
-                <BookMarked className={`h-4 w-4 ${toRead ? "fill-blue-500 text-blue-500" : ""}`} />
-              </Button>
-              </TooltipProvider>
-
-                <TooltipProvider title="Save" >
-
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-white bg-black hover:bg-slate-400"
-                onClick={() => setIsSaved(!isSaved)}
-                aria-label={isSaved ? "Remove from saved" : "Save book"}
-                >
-                <Bookmark className={`h-4 w-4 ${isSaved ? "fill-purple-500 text-purple-500" : ""}`} />
-              </Button>
-                  </TooltipProvider>
+            
 
 
+            <ReactionButton type={'like'} bookId={bookId} toolipTitle="Like" reactionArray={likesBookArr} />
+            <ReactionButton type={'haveToRead'} bookId={bookId} toolipTitle="Have to Read" reactionArray={haveToReadBookArr} />
+            <ReactionButton type={'save'} bookId={bookId} toolipTitle="Save" reactionArray={saveBookArr} />
+                
             </div>
           </div>
           <div className="flex items-center mb-4">

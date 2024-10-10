@@ -134,6 +134,10 @@ export const userTableRelations = relations(UserTable, ({one, many }) => ({
     fields: [UserTable.id],
     references: [VerificationTokenTable.userId],
   }),
+  savedBooks: many(userSavedBooksTable),
+  likedBooks: many(userLikedBooksTable),
+  haveToReadBooks: many(userHaveToReadBooksTable),
+  currentlyReadingBooks: many(userCurrentlyReadingBooksTable),
 }))
 
 export const bookTableRelations = relations(BookTable, ({ one, many }) => ({
