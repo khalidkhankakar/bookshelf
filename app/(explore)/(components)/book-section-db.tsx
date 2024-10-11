@@ -12,8 +12,6 @@ const BookSectonDB = async ({
 }) => {
   const books = await fetchBooks(category || "all");
 
-  console.log(books);
-
   return (
     <div>
       <div className=" bg-black text-white p-3">

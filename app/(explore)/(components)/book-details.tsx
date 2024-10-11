@@ -12,7 +12,7 @@ interface BookDetailsProps {
   title: string
   author: string
   description: string
-  category: string
+  bookCategoryArr: {id:string, name:string}[]
   publishedAt: string
   publisher: string
   rating: number
@@ -32,7 +32,7 @@ export default function BookDetails({
     publishedAt,
     publisher,
     rating,
-    category,
+    bookCategoryArr,
     isFree ,
     coverImage,
     pdfUrl,
@@ -97,9 +97,17 @@ export default function BookDetails({
             <div className="flex mr-2">{renderStars(rating)}</div>
             <span className="text-gray-600">({rating.toFixed(1)})</span>
           </div>
-          <Badge variant="secondary" className="mb-4">
-            {category}
-          </Badge>
+          <div className="flex items-center gap-x-2">
+{
+  bookCategoryArr.map((category)=>(
+    <Badge key={category.id} variant="secondary" className="mb-4">
+    {category.name}
+  </Badge>
+  ))
+}
+
+
+          </div>
           <p className="text-gray-400 mb-4">{description}</p>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>

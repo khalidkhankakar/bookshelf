@@ -11,7 +11,6 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { bookCategory } from "@/lib/constant";
 import { BookFormValidation } from "@/lib/types";
@@ -23,9 +22,15 @@ import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {  X } from "lucide-react";
+
 
 
 const ContributeForm = () => {
+const [selectArr, setSelectArr] = useState<string[]>(bookCategory)
+const [selectValuesArr, setSelectValuesArr] = useState<string[]>([])
+
   const router = useRouter()
   const { toast } = useToast()
   const {data:session} = useSession();
@@ -39,11 +44,21 @@ const ContributeForm = () => {
       author: "",
       isFree: false,
       price: '0',
-      category: "",
+      category:'',
       publisher: "",
       publishedAt: "",
     },
   });
+
+  const handleValueChange = (val:string) => {
+    setSelectArr((prevArr)=> prevArr.filter((newVal)=>newVal!==val))
+    setSelectValuesArr((prevArr:string[])=> [...prevArr, val])
+
+  }
+  const handleRemoveValue = (val:string) => {
+    setSelectArr((prevArr)=> [...prevArr, val])
+    setSelectValuesArr((prevArr:string[])=> prevArr.filter((newVal)=>newVal!==val))
+  }
 
   const onSubmit = async (values: z.infer<typeof BookFormValidation>) => {
     if(!session || !session?.user || !session?.user?.id) return;
@@ -53,6 +68,7 @@ const ContributeForm = () => {
     formData.append('description', values.description);
     formData.append('author', values.author);
     formData.append('category', values.category);
+    formData.append('categoryArr', JSON.stringify(selectValuesArr));
     formData.append('publisher', values.publisher);
     formData.append('publishedAt', values.publishedAt);
     formData.append('isFree', String(values.isFree)); // Convert boolean to string
@@ -61,7 +77,8 @@ const ContributeForm = () => {
     formData.append('bookPDF', values.bookPDF[0]); // File
 
     startTransition(() => {
-      uploadBook(formData)?.then((res:{success:boolean, message:string}) => {
+      uploadBook(formData)
+      .then((res:{success:boolean, message:string}) => {
         if(res.success){
           toast({
             title: res.message,
@@ -77,6 +94,7 @@ const ContributeForm = () => {
        return toast({title: err, variant: 'destructive'})
         });
     });
+
   };
 
   return (
@@ -156,7 +174,7 @@ const ContributeForm = () => {
             />
           )}
 
-          <CustomFormField
+          {/* <CustomFormField
             fieldType={CustomFormFieldType.SELECT}
             control={form.control}
             name="category"
@@ -168,7 +186,57 @@ const ContributeForm = () => {
                 <p>{category}</p>
               </SelectItem>
             ))}
-          </CustomFormField>
+          </CustomFormField> */}
+
+
+
+<div className=''>
+  {selectValuesArr.length > 0 && <div className="flex flex-row gap-x-2">
+    {selectValuesArr.map((val:string) => (
+      <div key={val} className="flex items-center bg-slate-700 px-2 py-1 rounded-md text-white gap-x-2">
+      <p  className=" text-sm ">{val}</p>    
+      <X size={17} onClick={()=>handleRemoveValue(val)} className="cursor-pointer" />
+      </div>
+    ))}
+    </div>}
+<FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <Select onValueChange={(val)=>{
+                console.log(val)
+                handleValueChange(val)
+                field.onChange(val)
+
+              }} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="shad-select-trigger">
+                    <SelectValue placeholder="Select a multiple categories" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="shad-select-content text-white">
+                  {
+                    selectArr.map((val:string) => (
+                      <SelectItem key={val} value={val}>{val}</SelectItem>
+                      
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </FormItem>
+          )}
+        />
+       
+
+       </div>
+
+
+
+
+
+
 
           <CustomFormField
             fieldType={CustomFormFieldType.INPUT}

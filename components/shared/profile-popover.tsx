@@ -70,7 +70,7 @@ export default function ProfilePopover({
         </div>
         <Separator className="my-4 bg-gray-700" />
         <nav className="space-y-2">
-        <Link href={`profile/${userId}`}>
+        <Link href={`/profile/${userId}`}>
         <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"
@@ -80,7 +80,7 @@ export default function ProfilePopover({
           </Button>
         </Link>
 
-        <Link href={`profile/edit/${userId}`}>
+        <Link href={`/profile/edit/${userId}`}>
           <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"
@@ -90,7 +90,7 @@ export default function ProfilePopover({
           </Button>
         </Link>
 
-        <Link href={`saved/${userId}`}>
+        <Link href={`/saved/${userId}`}>
           <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"
@@ -99,7 +99,7 @@ export default function ProfilePopover({
             <p className="text-white"> Saved Posts</p>
           </Button>
           </Link>
-          <Link href={`have-to-read/${userId}`}>
+          <Link href={`/have-to-read/${userId}`}>
           <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"
@@ -108,7 +108,7 @@ export default function ProfilePopover({
             <p className="text-white">To Read</p>
           </Button>
           </Link>
-          <Link href={`fav/${userId}`}>
+          <Link href={`/fav/${userId}`}>
           <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"
@@ -117,7 +117,7 @@ export default function ProfilePopover({
             <p className="text-white">Favorites</p>
           </Button>
           </Link>
-          <Link href={`currently-reading/${userId}`}>
+          <Link href={`/currently-reading/${userId}`}>
           <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"

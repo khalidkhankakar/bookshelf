@@ -5,7 +5,7 @@ import { auth } from '@/auth'
 import { fetchUserProfileById } from '@/lib/actions/user.actions'
 
 const page = async({params}:{params:{id:string}}) => {
-   const book = await fetchBookById(params.id)
+   const {book, bookCategoryArr} = await fetchBookById(params.id)
    if(!book) {
     return <div className='text-white font-semibold text-center my-12 text-3xl'>OOps! 🚫 Book not found</div>
    }
@@ -29,7 +29,7 @@ const page = async({params}:{params:{id:string}}) => {
           title ={book.title}
           author ={book.author}
           description ={book.description}
-          category ={book.category}
+          bookCategoryArr={bookCategoryArr}
           publishedAt ={book.publishedAt?.toString().split('T')[0] }
           publisher ={book.publisher}
           rating ={4.5}

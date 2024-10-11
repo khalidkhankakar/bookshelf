@@ -9,6 +9,8 @@ import {
 import bycrypt from "bcryptjs";
 import { db } from "../db/drizzle";
 import {
+  bookCategoryMappingTable,
+  bookCategoryTable,
   BookTable,
   UserBooksTable,
   userHaveToReadBooksTable,
@@ -23,7 +25,6 @@ import { sendEmail } from "./resend-email.actions";
 import { storage } from "@/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { revalidatePath } from "next/cache";
-
 
 export const createUser = async (values: z.infer<typeof signUpSchema>) => {
   const validatedValues = signUpSchema.safeParse(values);
@@ -122,73 +123,99 @@ export const fetchUserProfileById = async (id: string) => {
   return user;
 };
 
-export const addAndRemoveBookInSave = async (type:boolean, bookId:string,userId:string)=>{
-  if(type){
-    // remove 
-   const deletedUser =  await db.delete(userSavedBooksTable).where(eq(userSavedBooksTable.bookId, bookId))
-   if(deletedUser){
-    revalidatePath(`book/${bookId}`)
-    return {success:true, message:'Remove successfully'}
-   }
-    return {success:false, message:'Unable to remove something went wrong'}
-
-
+export const addAndRemoveBookInSave = async (
+  type: boolean,
+  bookId: string,
+  userId: string
+) => {
+  if (type) {
+    // remove
+    const deletedUser = await db
+      .delete(userSavedBooksTable)
+      .where(eq(userSavedBooksTable.bookId, bookId));
+    if (deletedUser) {
+      revalidatePath(`book/${bookId}`);
+      return { success: true, message: "Remove successfully" };
+    }
+    return { success: false, message: "Unable to remove something went wrong" };
   }
   // add
-  const insertedUser = await db.insert(userSavedBooksTable).values({bookId,userId})
-  if(insertedUser){
-    revalidatePath(`book/${bookId}`)
-    return {success:true, message:'Add successfully'}
+  const insertedUser = await db
+    .insert(userSavedBooksTable)
+    .values({ bookId, userId });
+  if (insertedUser) {
+    revalidatePath(`book/${bookId}`);
+    return { success: true, message: "Add successfully" };
   }
-  return {success:false, message:'Unable to add something went wrong'}
-}
+  return { success: false, message: "Unable to add something went wrong" };
+};
 
-export const addAndRemoveBookInLike = async (type:boolean, bookId:string,userId:string)=>{
-  if(type){
-    // remove 
-   const deletedUser =  await db.delete(userLikedBooksTable).where(eq(userLikedBooksTable.bookId, bookId))
-   if(deletedUser){
-    revalidatePath(`book/${bookId}`)
-    return {success:true, message:'Unliked successfully'}
-   }
-    return {success:false, message:'Unable to remove something went wrong'}
-
-
-  }
-  // add
-  const insertedUser = await db.insert(userLikedBooksTable).values({bookId,userId})
-  if(insertedUser){
-    revalidatePath(`book/${bookId}`)
-    return {success:true, message:'Liked successfully'}
-  }
-  return {success:false, message:'Unable to add something went wrong'}
-}
-
-export const addAndRemoveBookInHaveToRead = async (type:boolean, bookId:string,userId:string)=>{
-  if(type){
-    // remove 
-   const deletedUser =  await db.delete(userHaveToReadBooksTable).where(eq(userHaveToReadBooksTable.bookId, bookId))
-   if(deletedUser){
-    revalidatePath(`book/${bookId}`)
-    return {success:true, message:'Remove from have to read successfully'}
-   }
-    return {success:false, message:'Unable to remove something went wrong'}
-
-
+export const addAndRemoveBookInLike = async (
+  type: boolean,
+  bookId: string,
+  userId: string
+) => {
+  if (type) {
+    // remove
+    const deletedUser = await db
+      .delete(userLikedBooksTable)
+      .where(eq(userLikedBooksTable.bookId, bookId));
+    if (deletedUser) {
+      revalidatePath(`book/${bookId}`);
+      return { success: true, message: "Unliked successfully" };
+    }
+    return { success: false, message: "Unable to remove something went wrong" };
   }
   // add
-  const insertedUser = await db.insert(userHaveToReadBooksTable).values({bookId,userId})
-  if(insertedUser){
-    revalidatePath(`book/${bookId}`)
-    return {success:true, message:'Added to have to read successfully'}
+  const insertedUser = await db
+    .insert(userLikedBooksTable)
+    .values({ bookId, userId });
+  if (insertedUser) {
+    revalidatePath(`book/${bookId}`);
+    return { success: true, message: "Liked successfully" };
   }
-  return {success:false, message:'Unable to add something went wrong'}
-}
+  return { success: false, message: "Unable to add something went wrong" };
+};
 
+export const addAndRemoveBookInHaveToRead = async (
+  type: boolean,
+  bookId: string,
+  userId: string
+) => {
+  if (type) {
+    // remove
+    const deletedUser = await db
+      .delete(userHaveToReadBooksTable)
+      .where(eq(userHaveToReadBooksTable.bookId, bookId));
+    if (deletedUser) {
+      revalidatePath(`book/${bookId}`);
+      return {
+        success: true,
+        message: "Remove from have to read successfully",
+      };
+    }
+    return { success: false, message: "Unable to remove something went wrong" };
+  }
+  // add
+  const insertedUser = await db
+    .insert(userHaveToReadBooksTable)
+    .values({ bookId, userId });
+  if (insertedUser) {
+    revalidatePath(`book/${bookId}`);
+    return { success: true, message: "Added to have to read successfully" };
+  }
+  return { success: false, message: "Unable to add something went wrong" };
+};
 
 export const uploadBook = async (formData: FormData) => {
   const userId = formData.get("userId");
   const userIdStr = String(formData.get("userId"));
+  const categoryArr = formData.get("categoryArr");
+  const parseCategoryArr = JSON.parse(categoryArr as string);
+
+  const isArr = parseCategoryArr.map((item: any) => item);
+  console.log({ isArr, parseCategoryArr });
+
   if (!userId) return { success: false, message: "User does not exist" };
 
   const { success, data, error } = BookFormValidation.safeParse({
@@ -204,14 +231,16 @@ export const uploadBook = async (formData: FormData) => {
     publishedAt: formData.get("publishedAt"),
   });
 
-  if (!success)
+  if (!success) {
+    // Return a more readable error message instead of sending the error object directly
     return {
       success: false,
       message: "Validation failed",
-      error: error.format(),
+      error: error.errors.map((e: any) => `${e.path}: ${e.message}`).join(", "), // Convert the error object to a readable string
     };
+  }
 
-  // check the user if exists
+  // Check if user exists
   const userExists = await db
     .select()
     .from(UserTable)
@@ -220,52 +249,39 @@ export const uploadBook = async (formData: FormData) => {
   if (!userExists[0]) return { success: false, message: "User does not exist" };
 
   const { bookCoverImg, bookPDF } = data;
-  // Create references for both the book cover image and book PDF
   const bookCoverImgRef = ref(storage, `books/covers/${bookCoverImg[0].name}`);
   const bookPDFRef = ref(storage, `books/pdfs/${bookPDF[0].name}`);
 
-  // Set metadata for the PDF upload
   const metadata = {
-    contentType: bookPDF[0].type, // Set the content type
+    contentType: bookPDF[0].type,
     customMetadata: {
-      originalName: bookPDF[0].name, // Store the original name
+      originalName: bookPDF[0].name,
     },
   };
 
   // Upload tasks for both files
-  const uploadCoverImgTask = uploadBytesResumable(
-    bookCoverImgRef,
-    bookCoverImg[0],
-    {
-      contentType: bookCoverImg[0].type,
-    }
-  );
+  const uploadCoverImgTask = uploadBytesResumable(bookCoverImgRef, bookCoverImg[0], {
+    contentType: bookCoverImg[0].type,
+  });
 
   const uploadPDFTask = uploadBytesResumable(bookPDFRef, bookPDF[0], metadata);
 
-  // Wait for both uploads to complete
   await Promise.all([uploadCoverImgTask, uploadPDFTask]);
 
-  // Get download URLs for both uploaded files
   const bookCoverImgUrl = await getDownloadURL(bookCoverImgRef);
   const bookPDFUrl = await getDownloadURL(bookPDFRef);
 
-  // Convert price to number (if price exists) and handle free books
-  // If isFree, set price to 0, else convert price to number
-
-  // Insert the book data into the database
   const bookData = {
     title: data.title as string,
     description: data.description as string,
-    userId: userId as string, // Ensure userId is a string
+    userId: userId as string,
     author: data.author as string,
     image: bookCoverImgUrl,
     bookPdf: bookPDFUrl,
     isFree: data.isFree,
-    price: parseFloat(data.price || "0"), // Ensure price is a number
-    category: data.category,
+    price: parseFloat(data.price || "0"),
     publisher: data.publisher,
-    publishedAt: new Date(data.publishedAt), // Ensure publishedAt is a Date object
+    publishedAt: new Date(data.publishedAt),
   };
 
   try {
@@ -278,9 +294,19 @@ export const uploadBook = async (formData: FormData) => {
       return { success: false, message: "Book upload failed" };
     }
 
-    await db
-      .insert(UserBooksTable)
-      .values({ userId: userIdStr, bookId: uploadedBookId[0].id });
+    await db.insert(UserBooksTable).values({ userId: userIdStr, bookId: uploadedBookId[0].id });
+
+    for (let i = 0; i < parseCategoryArr.length; i++) {
+      const categoryId = await db
+        .insert(bookCategoryTable)
+        .values({ name: parseCategoryArr[i] })
+        .returning({ id: bookCategoryTable.id });
+
+      await db.insert(bookCategoryMappingTable).values({
+        bookId: uploadedBookId[0].id as string,
+        categoryId: categoryId[0].id,
+      });
+    }
 
     revalidatePath(`/profile/${userId}`);
     revalidatePath("/explore");
@@ -288,13 +314,16 @@ export const uploadBook = async (formData: FormData) => {
     return { success: true, message: "Upload successful" };
   } catch (insertError) {
     console.error("Database insert error:", insertError);
+
+    // Return a readable error message instead of an object
     return {
       success: false,
       message: "Database insertion failed",
-      error: insertError,
     };
   }
 };
+
+
 type FormDataInput = {
   get(key: string): FormDataEntryValue | null;
 };

@@ -1,5 +1,5 @@
 {
-  "id": "a307f6f9-7046-4132-a803-65ba086f40ff",
+  "id": "8fa5f37b-6ed4-45c4-82ab-48bf10149e76",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -64,12 +64,6 @@
           "primaryKey": false,
           "notNull": false,
           "default": 0
-        },
-        "category": {
-          "name": "category",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
         },
         "rating": {
           "name": "rating",
@@ -370,6 +364,133 @@
           "nullsNotDistinct": false,
           "columns": [
             "userId"
+          ]
+        }
+      }
+    },
+    "public.BookCategoryMappingTable": {
+      "name": "BookCategoryMappingTable",
+      "schema": "",
+      "columns": {
+        "bookId": {
+          "name": "bookId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_book_id": {
+          "name": "idx_book_id",
+          "columns": [
+            {
+              "expression": "bookId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_category_id": {
+          "name": "idx_category_id",
+          "columns": [
+            {
+              "expression": "categoryId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "BookCategoryMappingTable_bookId_BookTable_id_fk": {
+          "name": "BookCategoryMappingTable_bookId_BookTable_id_fk",
+          "tableFrom": "BookCategoryMappingTable",
+          "tableTo": "BookTable",
+          "columnsFrom": [
+            "bookId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "BookCategoryMappingTable_categoryId_BookCategoryTable_id_fk": {
+          "name": "BookCategoryMappingTable_categoryId_BookCategoryTable_id_fk",
+          "tableFrom": "BookCategoryMappingTable",
+          "tableTo": "BookCategoryTable",
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.BookCategoryTable": {
+      "name": "BookCategoryTable",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_category_name": {
+          "name": "idx_category_name",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "BookCategoryTable_id_unique": {
+          "name": "BookCategoryTable_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
           ]
         }
       }

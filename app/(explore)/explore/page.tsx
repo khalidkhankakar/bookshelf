@@ -5,8 +5,8 @@ const page = async() => {
   return (
     <div className='w-full'>
       <BookSectonDB  title={"All Books"} />
-      <BookSection title={"Science"}  />
-      <BookSection title={"Technology"}  />
+      {/* <BookSection title={"Science"}  />
+      <BookSection title={"Technology"}  /> */}
     </div>
   )
 }
