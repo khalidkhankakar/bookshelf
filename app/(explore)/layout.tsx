@@ -2,7 +2,7 @@ import Footer from "@/components/shared/footer";
 import Navbar from "@/components/shared/navbar";
 import { Metadata } from "next";
 import React from "react";
-import SearchFilterContainer from "./(components)/search-filter-container";
+import SearchFilterContainer from "./(components)/search/search-filter-container";
 
 export const metadata: Metadata = {
   title: "Explore | Bookshelf",

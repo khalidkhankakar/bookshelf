@@ -1,5 +1,5 @@
 {
-  "id": "8fa5f37b-6ed4-45c4-82ab-48bf10149e76",
+  "id": "85f32003-1043-4cce-beaf-0c4e291a81fb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -98,7 +98,98 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_book_title": {
+          "name": "idx_book_title",
+          "columns": [
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_book_author": {
+          "name": "idx_book_author",
+          "columns": [
+            {
+              "expression": "author",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_book_publisher": {
+          "name": "idx_book_publisher",
+          "columns": [
+            {
+              "expression": "publisher",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_book_title_trigram": {
+          "name": "idx_book_title_trigram",
+          "columns": [
+            {
+              "expression": "\"title\" gin_trgm_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "idx_book_author_trigram": {
+          "name": "idx_book_author_trigram",
+          "columns": [
+            {
+              "expression": "\"author\" gin_trgm_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "idx_book_publisher_trigram": {
+          "name": "idx_book_publisher_trigram",
+          "columns": [
+            {
+              "expression": "\"publisher\" gin_trgm_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "BookTable_userId_UserTable_id_fk": {
           "name": "BookTable_userId_UserTable_id_fk",
@@ -282,6 +373,36 @@
           "isUnique": true,
           "concurrently": false,
           "method": "btree",
+          "with": {}
+        },
+        "name_idx": {
+          "name": "name_idx",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_name_trigram": {
+          "name": "idx_name_trigram",
+          "columns": [
+            {
+              "expression": "\"name\" gin_trgm_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
           "with": {}
         }
       },
@@ -480,6 +601,21 @@
           "isUnique": false,
           "concurrently": false,
           "method": "btree",
+          "with": {}
+        },
+        "idx_category_name_trigram": {
+          "name": "idx_category_name_trigram",
+          "columns": [
+            {
+              "expression": "\"name\" gin_trgm_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
           "with": {}
         }
       },

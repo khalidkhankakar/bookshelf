@@ -174,10 +174,19 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_title" ON "BookTable" USING btree ("title");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_author" ON "BookTable" USING btree ("author");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_publisher" ON "BookTable" USING btree ("publisher");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_title_trigram" ON "BookTable" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_author_trigram" ON "BookTable" USING gin ("author" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_publisher_trigram" ON "BookTable" USING gin ("publisher" gin_trgm_ops);--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "email_idx" ON "UserTable" USING btree ("email");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "name_idx" ON "UserTable" USING btree ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_name_trigram" ON "UserTable" USING gin ("name" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_id" ON "BookCategoryMappingTable" USING btree ("bookId");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_category_id" ON "BookCategoryMappingTable" USING btree ("categoryId");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_category_name" ON "BookCategoryTable" USING btree ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_category_name_trigram" ON "BookCategoryTable" USING gin ("name" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_user_id_currently_reading" ON "userCurrentlyReadingBooksTable" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_id_currently_reading" ON "userCurrentlyReadingBooksTable" USING btree ("bookId");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "unique_user_id_and_book_id_currently_reading" ON "userCurrentlyReadingBooksTable" USING btree ("userId","bookId");--> statement-breakpoint
