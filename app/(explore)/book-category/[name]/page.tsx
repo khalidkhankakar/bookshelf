@@ -1,10 +1,9 @@
 import React from 'react'
+import BookSectonDB from '../../(components)/book-section-db'
 
 const page = ({params}:{params:{name:string}}) => {
   return (
-    <div>
-      {params.name}
-    </div>
+    <BookSectonDB title={params.name} category={params.name} />
   )
 }
 

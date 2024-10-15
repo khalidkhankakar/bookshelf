@@ -48,7 +48,7 @@ export default async function UserProfile({
       <div className="container mx-auto px-4 py-8">
         <div className="relative -mt-20 mb-8 flex flex-col items-center md:flex-row md:items-end">
           <Avatar className="w-32 h-32 border-4 border-gray-900">
-            <AvatarImage src={avatarUrl} alt={name} />
+            <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
             <AvatarFallback>
               {name
                 .split(" ")

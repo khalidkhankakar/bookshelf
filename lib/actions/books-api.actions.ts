@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/drizzle";
-import { BookTable } from "../db/schema";
+import { bookCategoryTable, BookTable } from "../db/schema";
 
 // Function to fetch books by category from Google Books API
 export const fetchBooksByCategory = async function fetchBooksByCategory(category:string) {
@@ -43,12 +43,25 @@ export const fetchBookById = async (id:string)=>{
 export const fetchBooks = async (category:string)=>{
     if(category=='all'){
         const books = await db.select().from(BookTable);
-        console.log(books);
         return books;
     }
-//   TODO: Refactor this query because this wrong
-    const books = await db.select().from(BookTable).where(eq(BookTable.category,category));
-    console.log(books);
-    return books;
+    const books = await db.query.bookCategoryTable.findMany({
+        where:eq(bookCategoryTable.name, category),
+        with: {
+            books: {
+                with: {
+                    book: true
+                }
+            }
+        }
+    })
+    const booArr = books.map((singleBook:any)=>singleBook.books[0].book);
+    return booArr;
 }
 
+
+
+export const fetchBookByPublisher = async(publisher:string)=>{
+    const books = await db.select().from(BookTable).where(eq(BookTable.publisher, publisher));
+    return books
+}

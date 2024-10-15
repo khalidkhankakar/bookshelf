@@ -1,10 +1,16 @@
-import React from 'react'
+import {  fetchUserLikedBooks } from "@/lib/actions/user.actions"
+import BookSectonDB from "../../(components)/book-section-db"
+import NoResult from "@/components/shared/no-result"
 
-const page = ({params}:{params:{id:string}}) => {
+const page = async({params}:{params:{id:string}}) => {
+  const userLikedBooks = await fetchUserLikedBooks(params.id)
+
+  if(!userLikedBooks || userLikedBooks.length <= 0) {
+    return <NoResult title="No liked books " message="Be the first to like books to your have to favorite list ❤"/>
+  }
+
   return (
-    <div className='text-white'>
-      User Fav Books {params.id}
-    </div>
+    <BookSectonDB title={"Your favorite Books"} booksArr={userLikedBooks} />
   )
 }
 

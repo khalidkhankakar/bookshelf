@@ -6,11 +6,13 @@ import BookCard from "./book-card";
 const BookSectonDB = async ({
   title,
   category,
+  booksArr
 }: {
   title: string;
   category?: string;
+  booksArr?: any[];
 }) => {
-  const books = await fetchBooks(category || "all");
+  const books = booksArr || await fetchBooks(category || "all");
 
   return (
     <div>

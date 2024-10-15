@@ -13,6 +13,7 @@ import {
   bookCategoryTable,
   BookTable,
   UserBooksTable,
+  userCurrentlyReadingBooksTable,
   userHaveToReadBooksTable,
   userLikedBooksTable,
   userSavedBooksTable,
@@ -135,6 +136,7 @@ export const addAndRemoveBookInSave = async (
       .where(eq(userSavedBooksTable.bookId, bookId));
     if (deletedUser) {
       revalidatePath(`book/${bookId}`);
+    revalidatePath(`/save/${userId}`)
       return { success: true, message: "Remove successfully" };
     }
     return { success: false, message: "Unable to remove something went wrong" };
@@ -145,6 +147,7 @@ export const addAndRemoveBookInSave = async (
     .values({ bookId, userId });
   if (insertedUser) {
     revalidatePath(`book/${bookId}`);
+    revalidatePath(`/save/${userId}`)
     return { success: true, message: "Add successfully" };
   }
   return { success: false, message: "Unable to add something went wrong" };
@@ -162,6 +165,7 @@ export const addAndRemoveBookInLike = async (
       .where(eq(userLikedBooksTable.bookId, bookId));
     if (deletedUser) {
       revalidatePath(`book/${bookId}`);
+    revalidatePath(`/fav/${userId}`)
       return { success: true, message: "Unliked successfully" };
     }
     return { success: false, message: "Unable to remove something went wrong" };
@@ -172,6 +176,7 @@ export const addAndRemoveBookInLike = async (
     .values({ bookId, userId });
   if (insertedUser) {
     revalidatePath(`book/${bookId}`);
+    revalidatePath(`/fav/${userId}`)
     return { success: true, message: "Liked successfully" };
   }
   return { success: false, message: "Unable to add something went wrong" };
@@ -194,6 +199,7 @@ export const addAndRemoveBookInHaveToRead = async (
         message: "Remove from have to read successfully",
       };
     }
+    revalidatePath(`/have-to-read/${userId}`)
     return { success: false, message: "Unable to remove something went wrong" };
   }
   // add
@@ -202,6 +208,7 @@ export const addAndRemoveBookInHaveToRead = async (
     .values({ bookId, userId });
   if (insertedUser) {
     revalidatePath(`book/${bookId}`);
+    revalidatePath(`/have-to-read/${userId}`)
     return { success: true, message: "Added to have to read successfully" };
   }
   return { success: false, message: "Unable to add something went wrong" };
@@ -403,3 +410,53 @@ export const updateUserProfile = async (formData: FormDataInput) => {
     message: "Updated successfully",
   };
 };
+
+
+
+export const fetchUserSavedBooks =async (userId:string)=>{
+  const savedBooks =await db.query.userSavedBooksTable.findMany({
+    where:eq(userSavedBooksTable.userId, userId),
+    with:{
+      book:true
+    }
+  })
+  const savedBooksArr = savedBooks.map((book)=>book.book)
+  return savedBooksArr;
+}
+
+
+export const fetchUserLikedBooks =async (userId:string)=>{
+  const likedBooks =await db.query.userLikedBooksTable.findMany({
+    where:eq(userLikedBooksTable.userId, userId),
+    with:{
+      book:true
+    }
+  })
+  const likedBooksArr = likedBooks.map((book)=>book.book)
+  return likedBooksArr;
+}
+
+
+export const fetchUserHaveToReadBooks =async (userId:string)=>{
+  const userHaveToReadBooks =await db.query.userHaveToReadBooksTable.findMany({
+    where:eq(userHaveToReadBooksTable.userId, userId),
+    with:{
+      book:true
+    }
+  })
+  const userHaveToReadBooksArr = userHaveToReadBooks.map((book)=>book.book)
+  console.log({userHaveToReadBooksArr})
+  return userHaveToReadBooksArr;
+}
+
+
+export const fetchUserCurrentlyReadingBooks =async (userId:string)=>{
+  const userCurrentlyReadingBooks =await db.query.userCurrentlyReadingBooksTable.findMany({
+    where:eq(userCurrentlyReadingBooksTable.userId, userId),
+    with:{
+      book:true
+    }
+  })
+  const userCurrentlyReadingBooksArr = userCurrentlyReadingBooks.map((book)=>book.book)
+  return userCurrentlyReadingBooksArr;
+}

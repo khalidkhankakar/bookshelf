@@ -90,7 +90,7 @@ export default function ProfilePopover({
           </Button>
         </Link>
 
-        <Link href={`/saved/${userId}`}>
+        <Link href={`/save/${userId}`}>
           <Button
             variant="ghost"
             className="w-full justify-start text-white hover:bg-gray-800"

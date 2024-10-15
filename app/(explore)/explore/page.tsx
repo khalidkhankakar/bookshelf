@@ -1,4 +1,3 @@
-import BookSection from '../(components)/book-section'
 import BookSectonDB from '../(components)/book-section-db'
 
 const page = async() => {
