@@ -1,5 +1,5 @@
 'use client'
-import { Star, Download, Eye, ShoppingCart } from "lucide-react"
+import { Star, Download, Eye, ShoppingCart, User, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
@@ -10,9 +10,9 @@ import ReactionButton from "./reaction-button"
 interface BookDetailsProps {
   bookId:string
   title: string
-  author: string
   description: string
   bookCategoryArr: {id:string, name:string}[]
+  bookAuthorArr: {id:string, name:string}[]
   publishedAt: string
   publisher: string
   rating: number
@@ -27,7 +27,6 @@ likesBookArr:any[]
 export default function BookDetails({
   bookId,
     title ,
-    author ,
     description ,
     publishedAt,
     publisher,
@@ -37,6 +36,7 @@ export default function BookDetails({
     coverImage,
     pdfUrl,
     saveBookArr,
+    bookAuthorArr,
     haveToReadBookArr,
     likesBookArr
 }: BookDetailsProps) {
@@ -79,8 +79,16 @@ export default function BookDetails({
           <div className="flex justify-between items-start mb-4">
             <div>
               <h1 className="text-3xl font-bold mb-2">{title}</h1>
-              <p className="text-xl mb-4">by {author}</p>
+              <div className="flex items-center gap-x-2 ">
+                <p className="text-gray-500 font-semibold text-xl ">By: </p>  
+                {
+                  bookAuthorArr.map((author)=>(
+                    <Badge key={author.id} variant="secondary" className="flex items-center justify-between gap-x-1"><User size={12} /> {author.name}</Badge>
+                  ))
+                }
+              </div>
             </div>
+
             <div className="flex gap-2 ">
     
 
@@ -100,8 +108,7 @@ export default function BookDetails({
           <div className="flex items-center gap-x-2">
 {
   bookCategoryArr.map((category)=>(
-    <Badge key={category.id} variant="secondary" className="mb-4">
-    {category.name}
+    <Badge key={category.id} className="flex items-center justify-between gap-x-1 mb-4"><Tag size={12} />  {category.name}
   </Badge>
   ))
 }

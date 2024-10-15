@@ -68,6 +68,7 @@ const [selectValuesArr, setSelectValuesArr] = useState<string[]>([])
     formData.append('description', values.description);
     formData.append('author', values.author);
     formData.append('category', values.category);
+    formData.append('bookform', 'DATABASE');
     formData.append('categoryArr', JSON.stringify(selectValuesArr));
     formData.append('publisher', values.publisher);
     formData.append('publishedAt', values.publishedAt);
@@ -119,6 +120,7 @@ const [selectValuesArr, setSelectValuesArr] = useState<string[]>([])
             label="Book Description"
           />
 
+          <div>
           <CustomFormField
             fieldType={CustomFormFieldType.INPUT}
             control={form.control}
@@ -126,6 +128,8 @@ const [selectValuesArr, setSelectValuesArr] = useState<string[]>([])
             label="Author"
             placeholder="Addy Osmani"
           />
+          <FormDescription>If you have multiple authors then use comma.</FormDescription>
+          </div>
 
           <CustomFormField
             fieldType={CustomFormFieldType.INPUT_FILE}

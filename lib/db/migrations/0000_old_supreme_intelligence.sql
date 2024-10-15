@@ -1,4 +1,10 @@
 DO $$ BEGIN
+ CREATE TYPE "public"."bookFrom" AS ENUM('API', 'DATABASE');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  CREATE TYPE "public"."provider" AS ENUM('credentials', 'google', 'github');
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -9,10 +15,10 @@ CREATE TABLE IF NOT EXISTS "BookTable" (
 	"title" varchar NOT NULL,
 	"description" varchar NOT NULL,
 	"userId" uuid NOT NULL,
-	"author" varchar NOT NULL,
 	"image" varchar NOT NULL,
 	"bookPdf" varchar NOT NULL,
 	"isFree" boolean DEFAULT false,
+	"bookFrom" "bookFrom" DEFAULT 'DATABASE' NOT NULL,
 	"price" real DEFAULT 0,
 	"rating" real,
 	"publisher" varchar NOT NULL,
@@ -53,6 +59,17 @@ CREATE TABLE IF NOT EXISTS "VerificationTokenTable" (
 	"expires" timestamp,
 	CONSTRAINT "VerificationTokenTable_id_unique" UNIQUE("id"),
 	CONSTRAINT "VerificationTokenTable_userId_unique" UNIQUE("userId")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "AuthorBookMappingTable" (
+	"authorId" uuid NOT NULL,
+	"bookId" uuid NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "AuthorTable" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar NOT NULL,
+	CONSTRAINT "AuthorTable_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "BookCategoryMappingTable" (
@@ -110,6 +127,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "VerificationTokenTable" ADD CONSTRAINT "VerificationTokenTable_userId_UserTable_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."UserTable"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "AuthorBookMappingTable" ADD CONSTRAINT "AuthorBookMappingTable_authorId_AuthorTable_id_fk" FOREIGN KEY ("authorId") REFERENCES "public"."AuthorTable"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "AuthorBookMappingTable" ADD CONSTRAINT "AuthorBookMappingTable_bookId_BookTable_id_fk" FOREIGN KEY ("bookId") REFERENCES "public"."BookTable"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -175,14 +204,17 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_title" ON "BookTable" USING btree ("title");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "idx_book_author" ON "BookTable" USING btree ("author");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_publisher" ON "BookTable" USING btree ("publisher");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_from" ON "BookTable" USING btree ("bookFrom");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_title_trigram" ON "BookTable" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "idx_book_author_trigram" ON "BookTable" USING gin ("author" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_publisher_trigram" ON "BookTable" USING gin ("publisher" gin_trgm_ops);--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "email_idx" ON "UserTable" USING btree ("email");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "name_idx" ON "UserTable" USING btree ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_name_trigram" ON "UserTable" USING gin ("name" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_author_id" ON "AuthorBookMappingTable" USING btree ("authorId");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_book_mapping_id" ON "AuthorBookMappingTable" USING btree ("bookId");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_author_name" ON "AuthorTable" USING btree ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_author_name_trigram" ON "AuthorTable" USING gin ("name" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_book_id" ON "BookCategoryMappingTable" USING btree ("bookId");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_category_id" ON "BookCategoryMappingTable" USING btree ("categoryId");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_category_name" ON "BookCategoryTable" USING btree ("name");--> statement-breakpoint

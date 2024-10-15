@@ -17,6 +17,10 @@ export const providerEnum = pgEnum("provider", [
   "google",
   "github",
 ]);
+export const bookFromEnum = pgEnum("bookFrom", [
+  "API",
+  "DATABASE",
+]);
 
 export const BookTable = pgTable(
   "BookTable",
@@ -27,10 +31,10 @@ export const BookTable = pgTable(
     userId: uuid("userId")
       .references(() => UserTable.id)
       .notNull(),
-    author: varchar("author").notNull(),
     image: varchar("image").notNull(),
     bookPdf: varchar("bookPdf").notNull(),
     isFree: boolean("isFree").default(false),
+    bookFrom: bookFromEnum("bookFrom").notNull().default("DATABASE"),
     price: real("price").default(0),
     rating: real("rating"),
     publisher: varchar("publisher").notNull(),
@@ -40,16 +44,12 @@ export const BookTable = pgTable(
   },
   (table) => ({
     bookTitleIndex: index("idx_book_title").on(table.title),
-    bookAuthorIndex: index("idx_book_author").on(table.author),
     bookPublisherIndex: index("idx_book_publisher").on(table.publisher),
+    bookFromIndex :index('idx_book_from').on(table.bookFrom),
     // gin trigram Indexs for fuzzy search functionality
     bookTitleTrigramIndex: index("idx_book_title_trigram").using(
       "gin",
       sql`${table.title} gin_trgm_ops`
-    ),
-    bookAuthorTrigramIndex: index("idx_book_author_trigram").using(
-      "gin",
-      sql`${table.author} gin_trgm_ops`
     ),
     bookPublisherTrigramIndex: index("idx_book_publisher_trigram").using(
       "gin",
@@ -114,6 +114,39 @@ export const bookCategoryTable = pgTable(
   })
 );
 
+export const authorTable = pgTable(
+  "AuthorTable",
+  {
+    id: uuid("id").defaultRandom().unique().primaryKey(),
+    name: varchar("name").notNull(),
+  },
+  (table) => ({
+    nameIndex: index("idx_author_name").on(table.name),
+    // gin trigram Indexs for fuzzy search functionality
+    nameTrigramIndex: index("idx_author_name_trigram").using(
+      "gin",
+      sql`${table.name} gin_trgm_ops`
+    ),
+  })
+);
+
+export const authorBookMappingTable = pgTable(
+  "AuthorBookMappingTable",
+  {
+    authorId: uuid("authorId")
+      .references(() => authorTable.id)
+      .notNull(),
+    bookId: uuid("bookId")
+      .references(() => BookTable.id)
+      .notNull(),
+  },
+  (table) => ({
+    authorIdIndex: index("idx_author_id").on(table.authorId),
+    bookIdIndex: index("idx_book_mapping_id").on(table.bookId),
+  })
+)
+
+
 export const bookCategoryMappingTable = pgTable(
   "BookCategoryMappingTable",
   {
@@ -129,6 +162,8 @@ export const bookCategoryMappingTable = pgTable(
     categoryIdIndex: index("idx_category_id").on(table.categoryId),
   })
 );
+
+
 
 export const userSavedBooksTable = pgTable(
   "UserSavedBooksTable",
@@ -245,6 +280,7 @@ export const bookTableRelations = relations(BookTable, ({ one, many }) => ({
     references: [UserTable.id],
   }),
   category: many(bookCategoryMappingTable),
+  author:many(authorBookMappingTable)
 }));
 
 export const bookCategoryRelations = relations(
@@ -267,6 +303,24 @@ export const bookCategoryMappingRelations = relations(
     }),
   })
 );
+
+
+export const authorTableRelations = relations(authorTable, ({ many }) => ({
+  books: many(authorBookMappingTable),
+}))
+
+export const authorBookMappingTableRelations = relations(
+  authorBookMappingTable, ({ one }) => ({
+    book: one(BookTable, {
+      fields: [authorBookMappingTable.bookId],
+      references: [BookTable.id],
+    }),
+    author: one(authorTable, {
+      fields: [authorBookMappingTable.authorId],
+      references: [authorTable.id],
+    })
+  }))
+
 
 export const userBooksTableRelations = relations(UserBooksTable, ({ one }) => ({
   user: one(UserTable, {

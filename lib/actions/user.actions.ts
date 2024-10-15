@@ -9,6 +9,8 @@ import {
 import bycrypt from "bcryptjs";
 import { db } from "../db/drizzle";
 import {
+  authorBookMappingTable,
+  authorTable,
   bookCategoryMappingTable,
   bookCategoryTable,
   BookTable,
@@ -215,6 +217,8 @@ export const addAndRemoveBookInHaveToRead = async (
 };
 
 export const uploadBook = async (formData: FormData) => {
+
+  // TODO: refactor this function 
   const userId = formData.get("userId");
   const userIdStr = String(formData.get("userId"));
   const categoryArr = formData.get("categoryArr");
@@ -282,7 +286,6 @@ export const uploadBook = async (formData: FormData) => {
     title: data.title as string,
     description: data.description as string,
     userId: userId as string,
-    author: data.author as string,
     image: bookCoverImgUrl,
     bookPdf: bookPDFUrl,
     isFree: data.isFree,
@@ -301,7 +304,24 @@ export const uploadBook = async (formData: FormData) => {
       return { success: false, message: "Book upload failed" };
     }
 
+
     await db.insert(UserBooksTable).values({ userId: userIdStr, bookId: uploadedBookId[0].id });
+
+    // TODO: add multiple author functionality
+    const authorArr = data.author.split(',').map((author: string) => author.trim());
+
+    for (let i = 0; i < authorArr.length; i++) {
+      const authorId = await db
+        .insert(authorTable)
+        .values({ name: authorArr[i] })
+        .returning({ id: authorTable.id });
+
+      await db.insert(authorBookMappingTable).values({
+        bookId: uploadedBookId[0].id as string,
+        authorId: authorId[0].id,
+      });
+    }
+
 
     for (let i = 0; i < parseCategoryArr.length; i++) {
       const categoryId = await db

@@ -26,13 +26,12 @@ const BookSectonDB = async ({
                 key={book.id}
                 bookId={book.id}
                 bookTitle={book.title}
-                bookAuthors={book.authors}
+                bookAuthors={book.author[0].author.name}
                 bookImage={book.image}
               />
             ))}
           </div>
-        </div>
-                
+        </div>    
       <div className="flex justify-centers">
         <Button variant="link" className="text-white ">View More</Button>
       </div>

@@ -1,5 +1,5 @@
 {
-  "id": "85f32003-1043-4cce-beaf-0c4e291a81fb",
+  "id": "f3397cd4-634f-45ed-b414-d949dc873d4c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -33,12 +33,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "author": {
-          "name": "author",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
         "image": {
           "name": "image",
           "type": "varchar",
@@ -57,6 +51,14 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "bookFrom": {
+          "name": "bookFrom",
+          "type": "bookFrom",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'DATABASE'"
         },
         "price": {
           "name": "price",
@@ -114,21 +116,6 @@
           "method": "btree",
           "with": {}
         },
-        "idx_book_author": {
-          "name": "idx_book_author",
-          "columns": [
-            {
-              "expression": "author",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "idx_book_publisher": {
           "name": "idx_book_publisher",
           "columns": [
@@ -144,26 +131,26 @@
           "method": "btree",
           "with": {}
         },
-        "idx_book_title_trigram": {
-          "name": "idx_book_title_trigram",
+        "idx_book_from": {
+          "name": "idx_book_from",
           "columns": [
             {
-              "expression": "\"title\" gin_trgm_ops",
+              "expression": "bookFrom",
+              "isExpression": false,
               "asc": true,
-              "isExpression": true,
               "nulls": "last"
             }
           ],
           "isUnique": false,
           "concurrently": false,
-          "method": "gin",
+          "method": "btree",
           "with": {}
         },
-        "idx_book_author_trigram": {
-          "name": "idx_book_author_trigram",
+        "idx_book_title_trigram": {
+          "name": "idx_book_title_trigram",
           "columns": [
             {
-              "expression": "\"author\" gin_trgm_ops",
+              "expression": "\"title\" gin_trgm_ops",
               "asc": true,
               "isExpression": true,
               "nulls": "last"
@@ -485,6 +472,148 @@
           "nullsNotDistinct": false,
           "columns": [
             "userId"
+          ]
+        }
+      }
+    },
+    "public.AuthorBookMappingTable": {
+      "name": "AuthorBookMappingTable",
+      "schema": "",
+      "columns": {
+        "authorId": {
+          "name": "authorId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bookId": {
+          "name": "bookId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_author_id": {
+          "name": "idx_author_id",
+          "columns": [
+            {
+              "expression": "authorId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_book_mapping_id": {
+          "name": "idx_book_mapping_id",
+          "columns": [
+            {
+              "expression": "bookId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "AuthorBookMappingTable_authorId_AuthorTable_id_fk": {
+          "name": "AuthorBookMappingTable_authorId_AuthorTable_id_fk",
+          "tableFrom": "AuthorBookMappingTable",
+          "tableTo": "AuthorTable",
+          "columnsFrom": [
+            "authorId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "AuthorBookMappingTable_bookId_BookTable_id_fk": {
+          "name": "AuthorBookMappingTable_bookId_BookTable_id_fk",
+          "tableFrom": "AuthorBookMappingTable",
+          "tableTo": "BookTable",
+          "columnsFrom": [
+            "bookId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.AuthorTable": {
+      "name": "AuthorTable",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_author_name": {
+          "name": "idx_author_name",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_author_name_trigram": {
+          "name": "idx_author_name_trigram",
+          "columns": [
+            {
+              "expression": "\"name\" gin_trgm_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "AuthorTable_id_unique": {
+          "name": "AuthorTable_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
           ]
         }
       }
@@ -1065,6 +1194,14 @@
     }
   },
   "enums": {
+    "public.bookFrom": {
+      "name": "bookFrom",
+      "schema": "public",
+      "values": [
+        "API",
+        "DATABASE"
+      ]
+    },
     "public.provider": {
       "name": "provider",
       "schema": "public",

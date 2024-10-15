@@ -29,11 +29,20 @@ export const fetchBookById = async (id:string)=>{
                         category:true
                     }
                 },         
+                author:{
+                    with:{
+                        author:true
+                    }
+                }
+                
             }
 
         });
+
         const bookCategoryArr = book?.category?.map((category:any)=>category.category);
-        return {book,bookCategoryArr};
+        const bookAuthorArr = book?.author?.map((author:any)=>author.author);
+        console.log({bookAuthorArr})
+        return {book,bookCategoryArr,bookAuthorArr};
     } catch (error) {
         console.log(error);   
     }
@@ -42,7 +51,16 @@ export const fetchBookById = async (id:string)=>{
 
 export const fetchBooks = async (category:string)=>{
     if(category=='all'){
-        const books = await db.select().from(BookTable);
+        const books = await db.query.BookTable.findMany({
+            with:{
+                author:{
+                    with:{
+                        author:true
+                    }
+                }
+            }
+        });
+
         return books;
     }
     const books = await db.query.bookCategoryTable.findMany({
@@ -50,9 +68,18 @@ export const fetchBooks = async (category:string)=>{
         with: {
             books: {
                 with: {
-                    book: true
+                    book: {
+                        with:{
+                            author:{
+                                with:{
+                                    author:true
+                                }
+                            }
+                        }
+                    }
                 }
             }
+
         }
     })
     const booArr = books.map((singleBook:any)=>singleBook.books[0].book);
@@ -62,6 +89,25 @@ export const fetchBooks = async (category:string)=>{
 
 
 export const fetchBookByPublisher = async(publisher:string)=>{
-    const books = await db.select().from(BookTable).where(eq(BookTable.publisher, publisher));
+//     const books = await db.select().from(BookTable).where(eq(BookTable.publisher, publisher),
+//     with:{
+//         author:{
+//             with:{
+//                 author:true
+//             }
+//         }
+//     }
+
+// );
+const books = await db.query.BookTable.findMany({
+    where:eq(BookTable.publisher, publisher),
+    with:{
+        author:{
+            with:{
+                author:true
+            }
+        }
+    }
+})
     return books
 }
