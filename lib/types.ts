@@ -54,3 +54,31 @@ export const signUpSchema = z.object({
       message: "Bio must not exceed 500 characters.",
     }).optional(),
   })
+
+export interface SearchParams{
+  year?:string;
+  page?:string;
+  rating?:string; 
+}
+
+export function parseSearchParams(
+  params: Record<string, string | string[] | undefined>
+): SearchParams {
+  return {
+    year: Array.isArray(params.yr) ? params.yr[0] : params.yr,
+    page: typeof params.page === 'string' ? params.page : undefined,
+    rating: typeof params.rtg === 'string' ? params.rtg : undefined,
+  };
+}
+
+export function stringifySearchParams(params: SearchParams): string {
+  const urlParams = new URLSearchParams();
+  console.log({urlParams})
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      urlParams.append(key, value);
+    }
+  });
+  return urlParams.toString();
+}
+

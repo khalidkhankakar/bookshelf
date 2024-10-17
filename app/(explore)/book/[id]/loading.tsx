@@ -17,7 +17,7 @@ export default function BookDetailsSkeleton() {
               <div className="flex gap-2">
                 {[...Array(4)].map((_, index) => (
                   <Skeleton key={index} className="w-8 h-8 rounded-md bg-gray-800" />
-                ))}
+                ))}a
               </div>
             </div>
             <div className="flex items-center mb-4">
