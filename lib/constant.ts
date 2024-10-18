@@ -53,3 +53,4 @@ export const dummyAcademicBooks: dummyBook[] = [
 
 export const bookCategory = ["Fiction", "Non-fiction", "Darama", "Science","Programming","Fansty", "Noval","Romantic","Histroical","Self-help", "Medical", "Literature", "Business", "Children's", "Mathematics", "Religion", "Travel", "Art", "Cooking", "Education"];
 
+export const ITEMS_PER_PAGE = 4

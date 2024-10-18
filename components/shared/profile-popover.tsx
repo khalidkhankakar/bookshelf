@@ -32,7 +32,7 @@ export default function ProfilePopover({
   avatarUrl,
   userId,
 }: ProfilePopoverProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -52,7 +52,7 @@ export default function ProfilePopover({
           </Avatar>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 bg-gray-900 border-gray-700 text-white">
+      <PopoverContent className="w-80 bg-dark-400 border-none text-white">
         <div className="flex items-center gap-4 mb-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={avatarUrl} alt={fullName} />

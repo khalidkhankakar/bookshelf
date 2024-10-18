@@ -13,7 +13,8 @@ const GlobalSearchResults = ({
   debounceValue,
   type,
 }: GlobalSearchResultsProps) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // TODO: fix type
   const [result, setResult] = useState<any[]>([]);
   useEffect(() => {
     if (debounceValue.length <= 0) return;

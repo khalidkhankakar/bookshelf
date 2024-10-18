@@ -178,24 +178,10 @@ const [selectValuesArr, setSelectValuesArr] = useState<string[]>([])
             />
           )}
 
-          {/* <CustomFormField
-            fieldType={CustomFormFieldType.SELECT}
-            control={form.control}
-            name="category"
-            label="Category"
-            placeholder="Select a category"
-          >
-            {bookCategory.map((category) => (
-              <SelectItem key={category} value={category}>
-                <p>{category}</p>
-              </SelectItem>
-            ))}
-          </CustomFormField> */}
 
 
-
-<div className=''>
-  {selectValuesArr.length > 0 && <div className="flex flex-row gap-x-2">
+<div className='max-w-2xl mx-auto'>
+  {selectValuesArr.length > 0 && <div className="flex flex-row flex-wrap items-center gap-x-2">
     {selectValuesArr.map((val:string) => (
       <div key={val} className="flex items-center bg-slate-700 px-2 py-1 rounded-md text-white gap-x-2">
       <p  className=" text-sm ">{val}</p>    

@@ -1,35 +1,8 @@
-import {
-  estimatedTotalBooks,
-  fetchBooks,
-} from "@/lib/actions/books-api.actions";
-import BookCard from "./book-card";
-import { SearchParams } from "@/lib/types";
-import { Suspense } from "react";
-import { BookPagination } from "./pagination/pagination";
+import { Suspense } from "react"
+import BookCard from "./book-card"
+import { BookPagination } from "./pagination/pagination"
 
-const BookSectonDB = async ({
-  title,
-  category,
-  booksArr,
-  searchParams,
-}: {
-  title: string;
-  category?: string;
-  booksArr?: any[];
-  searchParams?: SearchParams;
-}) => {
-  //! TODO: Book Array fix it and also use the promise.all()
-  const books = booksArr || (await fetchBooks(category || "all", searchParams || {}));
-  const currentPage = Math.max(1, Number(searchParams?.page) || 1);
-
-  const { totalResults, totalPages } = await estimatedTotalBooks(category || "all");
-
-  if (!books || books.length <= 0) {
-    return (
-      <p className="text-center my-10 text-2xl font-semibold">No books found</p>
-    );
-  }
-
+const UserReactionBooksContainer = ({books, title, currentPage, totalPages, totalResults}:{books:any[], title:string, currentPage:number, totalPages:number, totalResults:number}) => {
   return (
     <div>
       <div className=" bg-black text-white p-3">
@@ -59,7 +32,7 @@ const BookSectonDB = async ({
         />
       </Suspense>
     </div>
-  );
-};
+  )
+}
 
-export default BookSectonDB;
+export default UserReactionBooksContainer

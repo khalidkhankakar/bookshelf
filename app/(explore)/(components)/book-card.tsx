@@ -3,6 +3,15 @@ import StarRating from "./star-rating";
 import Image from "next/image";
 import Link from "next/link";
 
+interface BookCardProps  {
+  bookId: string;
+  bookDesc: string;
+  bookTitle: string;
+  bookAuthors: string;
+  bookImage: string;
+  bookRating: number;
+}
+
 const BookCard = ({
   bookId,
   bookTitle,
@@ -10,14 +19,7 @@ const BookCard = ({
   bookDesc,
   bookImage,
   bookRating,
-}: {
-  bookId: string;
-  bookDesc: string;
-  bookTitle: string;
-  bookAuthors: string;
-  bookImage: string;
-  bookRating: number;
-}) => {
+}:BookCardProps) => {
   return (
     <div className="p-4 md:w-1/3">
       <div className="h-full border-2 border-gray-800 border-opacity-60 rounded-lg overflow-hidden">

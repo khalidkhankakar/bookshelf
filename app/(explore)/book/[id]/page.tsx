@@ -10,7 +10,7 @@ const page = async ({ params }: { params: { id: string } }) => {
   if (!book) {
     return (
       <div className="text-white font-semibold text-center my-12 text-3xl">
-        OOps! 🚫 Book not found
+        OOps! 😲 Book not found
       </div>
     );
   }

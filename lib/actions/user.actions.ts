@@ -3,6 +3,7 @@
 import { z } from "zod";
 import {
   BookFormValidation,
+  SearchParams,
   signUpSchema,
   UserUpdateFormSchema,
 } from "../types";
@@ -22,12 +23,13 @@ import {
   UserTable,
   VerificationTokenTable,
 } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import crypto from "crypto";
 import { sendEmail } from "./resend-email.actions";
 import { storage } from "@/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { revalidatePath } from "next/cache";
+import { ITEMS_PER_PAGE } from "../constant";
 
 export const createUser = async (values: z.infer<typeof signUpSchema>) => {
   const validatedValues = signUpSchema.safeParse(values);
@@ -62,7 +64,7 @@ export const createUser = async (values: z.infer<typeof signUpSchema>) => {
   const tokenId = await db
     .insert(VerificationTokenTable)
     .values({
-      userId: userId[0].id,
+      userId: userId[0].id as string,
       token: randomUUID,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     })
@@ -138,7 +140,7 @@ export const addAndRemoveBookInSave = async (
       .where(eq(userSavedBooksTable.bookId, bookId));
     if (deletedUser) {
       revalidatePath(`book/${bookId}`);
-    revalidatePath(`/save/${userId}`)
+      revalidatePath(`/save/${userId}`);
       return { success: true, message: "Remove successfully" };
     }
     return { success: false, message: "Unable to remove something went wrong" };
@@ -149,7 +151,7 @@ export const addAndRemoveBookInSave = async (
     .values({ bookId, userId });
   if (insertedUser) {
     revalidatePath(`book/${bookId}`);
-    revalidatePath(`/save/${userId}`)
+    revalidatePath(`/save/${userId}`);
     return { success: true, message: "Add successfully" };
   }
   return { success: false, message: "Unable to add something went wrong" };
@@ -167,7 +169,7 @@ export const addAndRemoveBookInLike = async (
       .where(eq(userLikedBooksTable.bookId, bookId));
     if (deletedUser) {
       revalidatePath(`book/${bookId}`);
-    revalidatePath(`/fav/${userId}`)
+      revalidatePath(`/fav/${userId}`);
       return { success: true, message: "Unliked successfully" };
     }
     return { success: false, message: "Unable to remove something went wrong" };
@@ -178,7 +180,7 @@ export const addAndRemoveBookInLike = async (
     .values({ bookId, userId });
   if (insertedUser) {
     revalidatePath(`book/${bookId}`);
-    revalidatePath(`/fav/${userId}`)
+    revalidatePath(`/fav/${userId}`);
     return { success: true, message: "Liked successfully" };
   }
   return { success: false, message: "Unable to add something went wrong" };
@@ -201,7 +203,7 @@ export const addAndRemoveBookInHaveToRead = async (
         message: "Remove from have to read successfully",
       };
     }
-    revalidatePath(`/have-to-read/${userId}`)
+    revalidatePath(`/have-to-read/${userId}`);
     return { success: false, message: "Unable to remove something went wrong" };
   }
   // add
@@ -210,21 +212,18 @@ export const addAndRemoveBookInHaveToRead = async (
     .values({ bookId, userId });
   if (insertedUser) {
     revalidatePath(`book/${bookId}`);
-    revalidatePath(`/have-to-read/${userId}`)
+    revalidatePath(`/have-to-read/${userId}`);
     return { success: true, message: "Added to have to read successfully" };
   }
   return { success: false, message: "Unable to add something went wrong" };
 };
 
 export const uploadBook = async (formData: FormData) => {
-
-  // TODO: refactor this function 
+  // TODO: refactor this function
   const userId = formData.get("userId");
   const userIdStr = String(formData.get("userId"));
   const categoryArr = formData.get("categoryArr");
   const parseCategoryArr = JSON.parse(categoryArr as string);
-
-  const isArr = parseCategoryArr.map((item: any) => item);
 
   if (!userId) return { success: false, message: "User does not exist" };
 
@@ -270,9 +269,13 @@ export const uploadBook = async (formData: FormData) => {
   };
 
   // Upload tasks for both files
-  const uploadCoverImgTask = uploadBytesResumable(bookCoverImgRef, bookCoverImg[0], {
-    contentType: bookCoverImg[0].type,
-  });
+  const uploadCoverImgTask = uploadBytesResumable(
+    bookCoverImgRef,
+    bookCoverImg[0],
+    {
+      contentType: bookCoverImg[0].type,
+    }
+  );
 
   const uploadPDFTask = uploadBytesResumable(bookPDFRef, bookPDF[0], metadata);
 
@@ -303,11 +306,14 @@ export const uploadBook = async (formData: FormData) => {
       return { success: false, message: "Book upload failed" };
     }
 
-
-    await db.insert(UserBooksTable).values({ userId: userIdStr, bookId: uploadedBookId[0].id });
+    await db
+      .insert(UserBooksTable)
+      .values({ userId: userIdStr, bookId: uploadedBookId[0].id });
 
     // TODO: add multiple author functionality
-    const authorArr = data.author.split(',').map((author: string) => author.trim());
+    const authorArr = data.author
+      .split(",")
+      .map((author: string) => author.trim());
 
     for (let i = 0; i < authorArr.length; i++) {
       const authorId = await db
@@ -320,7 +326,6 @@ export const uploadBook = async (formData: FormData) => {
         authorId: authorId[0].id,
       });
     }
-
 
     for (let i = 0; i < parseCategoryArr.length; i++) {
       const categoryId = await db
@@ -348,7 +353,6 @@ export const uploadBook = async (formData: FormData) => {
     };
   }
 };
-
 
 type FormDataInput = {
   get(key: string): FormDataEntryValue | null;
@@ -427,51 +431,122 @@ export const updateUserProfile = async (formData: FormDataInput) => {
   };
 };
 
-
-
-export const fetchUserSavedBooks =async (userId:string)=>{
-  const savedBooks =await db.query.userSavedBooksTable.findMany({
-    where:eq(userSavedBooksTable.userId, userId),
-    with:{
-      book:true
-    }
-  })
-  const savedBooksArr = savedBooks.map((book)=>book.book)
+export const fetchUserSavedBooks = async (
+  userId: string,
+  searchParams: SearchParams
+) => {
+  const requestedPage = Math.max(1, Number(searchParams?.page) || 1);
+  const offset = (Number(requestedPage) - 1) * ITEMS_PER_PAGE;
+  const savedBooks = await db.query.userSavedBooksTable.findMany({
+    limit: ITEMS_PER_PAGE,
+    offset,
+    where: eq(userSavedBooksTable.userId, userId),
+    with: {
+      book: {
+        with: {
+          author:{
+            with:{
+              author: true
+            }
+          }
+        }
+      },
+    },
+  });
+  const savedBooksArr = savedBooks.map((book) => book.book);
   return savedBooksArr;
-}
+};
 
+export const estimatedTotalBooksOfUserReactions = async (
+  type: "save" | "like" | "havetoRead",
+) => {
+  let totalResults = 0;
 
-export const fetchUserLikedBooks =async (userId:string)=>{
-  const likedBooks =await db.query.userLikedBooksTable.findMany({
-    where:eq(userLikedBooksTable.userId, userId),
-    with:{
-      book:true
-    }
-  })
-  const likedBooksArr = likedBooks.map((book)=>book.book)
+  if (type == "save") {
+    const allRes = await db
+      .select({ count: count() })
+      .from(userSavedBooksTable);
+    totalResults = allRes[0].count;
+    const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
+    return { totalResults, totalPages };
+  }
+
+  if (type == "like") {
+    const allRes = await db
+      .select({ count: count() })
+      .from(userLikedBooksTable);
+    totalResults = allRes[0].count;
+    const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
+    return { totalResults, totalPages };
+  }
+
+  const allRes = await db
+    .select({ count: count() })
+    .from(userHaveToReadBooksTable);
+  totalResults = allRes[0].count;
+  const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
+  return { totalResults, totalPages };
+};
+
+export const fetchUserLikedBooks = async (userId: string, searchParams: SearchParams
+) => {
+  const requestedPage = Math.max(1, Number(searchParams?.page) || 1);
+  const offset = (Number(requestedPage) - 1) * ITEMS_PER_PAGE;
+
+  const likedBooks = await db.query.userLikedBooksTable.findMany({
+    limit: ITEMS_PER_PAGE,
+    offset,
+    where: eq(userLikedBooksTable.userId, userId),
+    with: {
+      book: {
+        with: {
+          author:{
+            with:{
+              author: true
+            }
+          }
+        }
+      },
+    },
+  });
+  const likedBooksArr = likedBooks.map((book) => book.book);
   return likedBooksArr;
-}
+};
 
-
-export const fetchUserHaveToReadBooks =async (userId:string)=>{
-  const userHaveToReadBooks =await db.query.userHaveToReadBooksTable.findMany({
-    where:eq(userHaveToReadBooksTable.userId, userId),
-    with:{
-      book:true
-    }
-  })
-  const userHaveToReadBooksArr = userHaveToReadBooks.map((book)=>book.book)
+export const fetchUserHaveToReadBooks = async (userId:string, searchParams: SearchParams
+) => {
+  const requestedPage = Math.max(1, Number(searchParams?.page) || 1);
+  const offset = (Number(requestedPage) - 1) * ITEMS_PER_PAGE;
+  const userHaveToReadBooks = await db.query.userHaveToReadBooksTable.findMany({
+    limit: ITEMS_PER_PAGE,
+    offset,
+    where: eq(userHaveToReadBooksTable.userId, userId),
+    with: {
+      book: {
+        with: {
+          author:{
+            with:{
+              author: true
+            }
+          }
+        }
+      },
+    },
+  });
+  const userHaveToReadBooksArr = userHaveToReadBooks.map((book) => book.book);
   return userHaveToReadBooksArr;
-}
+};
 
-
-export const fetchUserCurrentlyReadingBooks =async (userId:string)=>{
-  const userCurrentlyReadingBooks =await db.query.userCurrentlyReadingBooksTable.findMany({
-    where:eq(userCurrentlyReadingBooksTable.userId, userId),
-    with:{
-      book:true
-    }
-  })
-  const userCurrentlyReadingBooksArr = userCurrentlyReadingBooks.map((book)=>book.book)
+export const fetchUserCurrentlyReadingBooks = async (userId: string) => {
+  const userCurrentlyReadingBooks =
+    await db.query.userCurrentlyReadingBooksTable.findMany({
+      where: eq(userCurrentlyReadingBooksTable.userId, userId),
+      with: {
+        book: true,
+      },
+    });
+  const userCurrentlyReadingBooksArr = userCurrentlyReadingBooks.map(
+    (book) => book.book
+  );
   return userCurrentlyReadingBooksArr;
-}
+};

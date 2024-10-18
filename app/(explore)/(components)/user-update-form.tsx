@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import {  useState, useTransition } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
+import { useState, useTransition } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,93 +13,98 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { useDropzone } from "react-dropzone"
-import { X } from "lucide-react"
-import Image from "next/image"
-import { UserUpdateFormSchema } from "@/lib/types"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
-import { updateUserProfile } from "@/lib/actions/user.actions"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useDropzone } from "react-dropzone";
+import { X } from "lucide-react";
+import Image from "next/image";
+import { UserUpdateFormSchema } from "@/lib/types";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { updateUserProfile } from "@/lib/actions/user.actions";
 
+interface UpdateUserProfileFormProps {
+  userId: string;
+  userData: string;
+}
 
+export default function UpdateUserProfileForm({
+  userId,
+  userData,
+}: UpdateUserProfileFormProps) {
+  const parseUserData = JSON.parse(userData);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
-export default function UpdateUserProfileForm({userId,userData} : {userId:string,userData:string}) {
-
-    const parseUserData = JSON.parse(userData)
-
-    const {data:session} = useSession()
-    const router = useRouter()
-    const {toast} = useToast()
-    const [isPending, startTransition] = useTransition()
-
-  const [profileImage, setProfileImage] = useState<string | File | null>(parseUserData?.image)
-  const [coverImage, setCoverImage] = useState<string | File | null>(parseUserData?.coverImage)
+  const [profileImage, setProfileImage] = useState<string | File | null>(
+    parseUserData?.image
+  );
+  const [coverImage, setCoverImage] = useState<string | File | null>(
+    parseUserData?.coverImage
+  );
 
   const form = useForm<z.infer<typeof UserUpdateFormSchema>>({
     resolver: zodResolver(UserUpdateFormSchema),
     defaultValues: {
       name: parseUserData?.name || "",
       location: parseUserData?.location || "",
-      twitterUrl:   parseUserData?.twitterUrl || "",
+      twitterUrl: parseUserData?.twitterUrl || "",
       instagramUrl: parseUserData?.instagramUrl || "",
       bio: parseUserData?.bio || "",
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof UserUpdateFormSchema>) {
-
-    if(!userId || userId.length <=0){
-        toast({
-            title:'Please Log In to perfrom this action',
-            variant:'destructive',
-        })
-        return router.push('/auth/sign-in')
+    if (!userId || userId.length <= 0) {
+      toast({
+        title: "Please Log In to perfrom this action",
+        variant: "destructive",
+      });
+      return router.push("/auth/sign-in");
     }
     const fromData = new FormData();
-    fromData.append('name',values.name)
-    values.location && fromData.append('location',values.location)
-    values.twitterUrl && fromData.append('twitterUrl',values.twitterUrl)
-    values.instagramUrl && fromData.append('instagramUrl',values.instagramUrl)
-    values.bio && fromData.append('bio',values.bio)
-    profileImage && fromData.append('profileImage',profileImage)
-    coverImage && fromData.append('coverImage',coverImage)
-    fromData.append('userId', session?.user?.id as string)
-
-    
+    fromData.append("name", values.name);
+    values.location && fromData.append("location", values.location);
+    values.twitterUrl && fromData.append("twitterUrl", values.twitterUrl);
+    values.instagramUrl && fromData.append("instagramUrl", values.instagramUrl);
+    values.bio && fromData.append("bio", values.bio);
+    profileImage && fromData.append("profileImage", profileImage);
+    coverImage && fromData.append("coverImage", coverImage);
+    fromData.append("userId", session?.user?.id as string);
 
     startTransition(() => {
-      updateUserProfile(fromData)?.then((res:{success:boolean, message:string}) => {
-        if(res.success){
-          toast({
-            title: res.message,
-          })
-          return router.push(`/profile/${userId}`)
-        }
-        return toast({
-          title: 'Upload Failed',
-          variant: 'destructive',
-        })
+      updateUserProfile(fromData)
+        ?.then((res: { success: boolean; message: string }) => {
+          if (res.success) {
+            toast({
+              title: res.message,
+            });
+            return router.push(`/profile/${userId}`);
+          }
+          return toast({
+            title: "Upload Failed",
+            variant: "destructive",
+          });
         })
         .catch((err: any) => {
-       return toast({title: err, variant: 'destructive'})
+          return toast({ title: err, variant: "destructive" });
         });
     });
-
   }
 
   const profileDropzone = useDropzone({
     accept: { "image/*": [] },
-    onDrop: (acceptedFiles:any) => setProfileImage(acceptedFiles[0]),
-  })
+    onDrop: (acceptedFiles: any) => setProfileImage(acceptedFiles[0]),
+  });
 
   const coverDropzone = useDropzone({
     accept: { "image/*": [] },
-    onDrop: (acceptedFiles:any) => setCoverImage(acceptedFiles[0]),
-  })
+    onDrop: (acceptedFiles: any) => setCoverImage(acceptedFiles[0]),
+  });
 
   return (
     <div className="container mx-auto p-6 0 text-white">
@@ -117,7 +122,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
                 {profileImage ? (
                   <div className="relative">
                     <Image
-                      src={typeof profileImage === "string" ? profileImage :  URL.createObjectURL(profileImage)}
+                      src={
+                        typeof profileImage === "string"
+                          ? profileImage
+                          : URL.createObjectURL(profileImage)
+                      }
                       alt="Profile Preview"
                       className="mx-auto max-h-48 rounded object-cover"
                       width={300}
@@ -129,22 +138,22 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
                       size="icon"
                       className="absolute top-0 right-0"
                       onClick={(e) => {
-                        e.stopPropagation()
-                        setProfileImage(null)
+                        e.stopPropagation();
+                        setProfileImage(null);
                       }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
-                  <p>Drag n drop a profile image here, or click to select one</p>
+                  <p>
+                    Drag n drop a profile image here, or click to select one
+                  </p>
                 )}
               </div>
             </div>
             <div>
               <FormLabel>Cover Image</FormLabel>
-
-
 
               <div
                 {...coverDropzone.getRootProps()}
@@ -154,7 +163,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
                 {coverImage ? (
                   <div className="relative">
                     <Image
-                      src={typeof coverImage === "string" ? coverImage : URL.createObjectURL(coverImage)}
+                      src={
+                        typeof coverImage === "string"
+                          ? coverImage
+                          : URL.createObjectURL(coverImage)
+                      }
                       alt="Cover Preview"
                       className="mx-auto max-h-48 rounded object-cover"
                       width={300}
@@ -166,8 +179,8 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
                       size="icon"
                       className="absolute top-0 right-0"
                       onClick={(e) => {
-                        e.stopPropagation()
-                        setCoverImage(null)
+                        e.stopPropagation();
+                        setCoverImage(null);
                       }}
                     >
                       <X className="h-4 w-4" />
@@ -177,10 +190,6 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
                   <p>Drag n drop a cover image here, or click to select one</p>
                 )}
               </div>
-
-
-
-
             </div>
           </div>
           <FormField
@@ -190,7 +199,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Khalid khan" {...field} className="shad-input" />
+                  <Input
+                    placeholder="Khalid khan"
+                    {...field}
+                    className="shad-input"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -203,7 +216,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
               <FormItem>
                 <FormLabel>Location</FormLabel>
                 <FormControl>
-                  <Input placeholder="Killa Saifullah" {...field} className="shad-input" />
+                  <Input
+                    placeholder="Killa Saifullah"
+                    {...field}
+                    className="shad-input"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -216,7 +233,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
               <FormItem>
                 <FormLabel>Twitter URL</FormLabel>
                 <FormControl>
-                  <Input placeholder="https://twitter.com/yourusername" {...field} className="shad-input" />
+                  <Input
+                    placeholder="https://twitter.com/yourusername"
+                    {...field}
+                    className="shad-input"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -229,7 +250,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
               <FormItem>
                 <FormLabel>Instagram URL</FormLabel>
                 <FormControl>
-                  <Input placeholder="https://instagram.com/yourusername" {...field} className="shad-input" />
+                  <Input
+                    placeholder="https://instagram.com/yourusername"
+                    {...field}
+                    className="shad-input"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -255,9 +280,11 @@ export default function UpdateUserProfileForm({userId,userData} : {userId:string
               </FormItem>
             )}
           />
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">{isPending? 'Updating...' : 'Update Profile'}</Button>
+          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full">
+            {isPending ? "Updating..." : "Update Profile"}
+          </Button>
         </form>
       </Form>
     </div>
-  )
+  );
 }

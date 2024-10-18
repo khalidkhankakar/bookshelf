@@ -12,7 +12,6 @@ import { useCallback, useState } from "react";
 export function BookPagination({
   totalPages,
   currentPage,
-  totalResults,
 }: {
   currentPage: number;
   totalPages: number;
@@ -47,7 +46,7 @@ export function BookPagination({
             }}
             disabled={myCurrentPage <= 1}
           >
-            Previous
+           ⬅ Previous
           </Button>
         </PaginationItem>
 
@@ -77,7 +76,7 @@ export function BookPagination({
             }}
             disabled={currentPage >= totalPages}
           >
-            Next
+            Next ➡
           </Button>
         </PaginationItem>
       </PaginationContent>

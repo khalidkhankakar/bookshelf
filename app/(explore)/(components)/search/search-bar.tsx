@@ -21,7 +21,7 @@ export default function CategorySearch() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [type, setType] = useState<string>("all");
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setIsOpen(true);
     if (e.target.value === "" && isOpen) setIsOpen(false);
@@ -30,7 +30,7 @@ export default function CategorySearch() {
 
   const devSearchRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const handleOutsideClick = (event: any) => {
+    const handleOutsideClick = (event: MouseEvent) => {
       if (
         devSearchRef.current &&
         event.target instanceof Node && // Ensure event.target is a DOM node

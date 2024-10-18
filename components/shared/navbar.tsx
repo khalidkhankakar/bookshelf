@@ -14,7 +14,7 @@ const Navbar = () => {
       <nav className="flex items-center shadow-md bg-black shadow-white/10 justify-between px-8 p-4">
         <div className="flex items-center">
           <Link href="/" className="text-2xl flex items-center gap-x-2  font-bold text-[#00E599]">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-10 h-10 text-white p-2 bg-[#00E599] rounded-full" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-8 h-8 text-white p-2 bg-[#00E599] rounded-full" viewBox="0 0 24 24">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
         </svg>
             BOOKSHELF
