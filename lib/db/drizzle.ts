@@ -10,4 +10,4 @@ if (!process.env.POSTGRES_URL) {
 
 export const client = neon(process.env.POSTGRES_URL);
 
-export const db = drizzle(client,{schema,logger:true});
+export const db = drizzle(client,{schema});

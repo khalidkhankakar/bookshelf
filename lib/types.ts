@@ -73,7 +73,6 @@ export function parseSearchParams(
 
 export function stringifySearchParams(params: SearchParams): string {
   const urlParams = new URLSearchParams();
-  console.log({urlParams})
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined) {
       urlParams.append(key, value);

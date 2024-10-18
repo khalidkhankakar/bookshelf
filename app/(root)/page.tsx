@@ -13,8 +13,7 @@ export default async function Home() {
         Get any book with BookShelf
       </h1>
       <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto">
-        The database you love, on a serverless platform designed to help you
-        build reliable and scalable applications faster.
+      Explore, read, and save your favorite books effortlessly with our seamless bookshelf platform!
       </p>
       <div className="flex gap-x-2 items-center justify-center">
         <Link
@@ -30,9 +29,7 @@ export default async function Home() {
           Contribute
         </Link>
       </div>
-
       <FeaturedSection />
-
       <Features />
       <Footer />
     </div>

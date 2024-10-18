@@ -12,8 +12,8 @@ const RootLayout = ({
 }>) => {
   return (
     <div className="bg-black text-white min-h-screen">
-      <div className="container mx-auto px-4">
         <Navbar />
+      <div className="container mx-auto px-4">
         {children}
       </div>
     </div>

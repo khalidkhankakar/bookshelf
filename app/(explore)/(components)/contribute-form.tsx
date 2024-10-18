@@ -210,7 +210,6 @@ const [selectValuesArr, setSelectValuesArr] = useState<string[]>([])
             <FormItem>
               <FormLabel>Category</FormLabel>
               <Select onValueChange={(val)=>{
-                console.log(val)
                 handleValueChange(val)
                 field.onChange(val)
 

@@ -225,7 +225,6 @@ export const uploadBook = async (formData: FormData) => {
   const parseCategoryArr = JSON.parse(categoryArr as string);
 
   const isArr = parseCategoryArr.map((item: any) => item);
-  console.log({ isArr, parseCategoryArr });
 
   if (!userId) return { success: false, message: "User does not exist" };
 
@@ -375,9 +374,6 @@ export const updateUserProfile = async (formData: FormDataInput) => {
     };
   }
 
-  console.log("profileImg", typeof formData.get("profileImage"));
-  console.log("coverImg", typeof formData.get("coverImage"));
-
   let userProfileImgUrl: string | undefined;
   let userCoverImgUrl: string | undefined;
 
@@ -465,7 +461,6 @@ export const fetchUserHaveToReadBooks =async (userId:string)=>{
     }
   })
   const userHaveToReadBooksArr = userHaveToReadBooks.map((book)=>book.book)
-  console.log({userHaveToReadBooksArr})
   return userHaveToReadBooksArr;
 }
 

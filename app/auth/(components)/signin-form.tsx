@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import SocialLoginButtons from "./social-login-buttons";
-import { Separator } from "@radix-ui/react-separator";
 import { signInSchema } from "@/lib/types";
 import { signIn } from "next-auth/react";
 import { useState, useTransition } from "react";
@@ -40,8 +39,10 @@ const SignInForm = () => {
     startTransition(() => {
       signIn("credentials", { email, password })
         .then((res) => {
-          if (!res?.error) {
-            setIsError("Incorrect email or password or account is not verified");
+          if (res?.error) {
+            setIsError(
+              "Incorrect email or password or account is not verified"
+            );
           } else {
             setIsSuccess("Login successfully");
           }
@@ -63,7 +64,10 @@ const SignInForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-y-2"
+      >
         <FormField
           control={form.control}
           name="email"
@@ -71,7 +75,12 @@ const SignInForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="khalidkhan@example.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="khalidkhan@example.com"
+                  className="shad-input"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,22 +93,30 @@ const SignInForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="*********" {...field} />
+                <Input
+                  type="password"
+                  placeholder="* * * * * * * * *"
+                  className="shad-input"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-{(isError || isSuccess) && (
-        <StatusMessage isError={isError} isSuccess={isSuccess} />
-      )}
+        {(isError || isSuccess) && (
+          <StatusMessage isError={isError} isSuccess={isSuccess} />
+        )}
 
-        <Button type="submit" className="w-full">
+        <Button
+          type="submit"
+          className="w-full bg-dark-200 text-white border-none hover:bg-dark-400 hover:text-white mt-4"
+        >
           {isPending ? "SignIn..." : "Sign in"}
         </Button>
       </form>
-      <Separator className="my-2" />
+      <div className="h-[1px] bg-gray-700 mt-4 w-1/2 mx-auto" />
       <SocialLoginButtons type="Sign in" />
     </Form>
   );

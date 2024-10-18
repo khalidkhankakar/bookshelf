@@ -114,16 +114,20 @@ export default async function UserProfile({
               No books created
             </p>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {books.map((book) => (
-                <BookCard
-                  key={book.book.id}
-                  bookId={book.book.id}
-                  bookTitle={book.book.title}
-                  bookAuthors={book.book.author}
-                  bookImage={book.book.image}
-                />
-              ))}
+            <div className="container px-5 py-12 mx-auto">
+              <div className="flex flex-wrap -m-4">
+                {books.map((book) => (
+                  <BookCard
+                    key={book.book.id}
+                    bookId={book.book.id}
+                    bookTitle={book.book.title}
+                    bookAuthors={book.book.author}
+                    bookDesc={book.book.description}
+                    bookImage={book.book.image}
+                    bookRating={book.book.rating}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>

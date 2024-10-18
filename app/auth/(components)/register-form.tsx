@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import SocialLoginButtons from "./social-login-buttons";
-import { Separator } from "@radix-ui/react-separator";
 import { signUpSchema } from "@/lib/types";
 import { createUser } from "@/lib/actions/user.actions";
 import { useState, useTransition } from "react";
@@ -63,7 +62,10 @@ const SignUpForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-y-2"
+      >
         <FormField
           control={form.control}
           name="username"
@@ -71,7 +73,11 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Khalid khan" {...field} />
+                <Input
+                  placeholder="Khalid khan"
+                  className="shad-input"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,7 +90,12 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="n0IYv@example.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="khalidkhan@example.com"
+                  className="shad-input"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -97,25 +108,31 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="*********" {...field} />
+                <Input
+                  type="password"
+                  className="shad-input"
+                  placeholder="* * * * * * * * *"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-{(isError || isSuccess) && (
-        <StatusMessage isError={isError} isSuccess={isSuccess} />
-      )}
+        {(isError || isSuccess) && (
+          <StatusMessage isError={isError} isSuccess={isSuccess} />
+        )}
 
-
-        <Button type="submit" className="w-full">
+        <Button
+          type="submit"
+          className="w-full bg-dark-200 text-white border-none hover:bg-dark-400 hover:text-white mt-4"
+        >
           {isPending ? "SignUp..." : "Sign up"}
         </Button>
       </form>
-      <Separator className="my-2" />
+      <div className="h-[1px] bg-gray-700 mt-4 w-1/2 mx-auto" />
       <SocialLoginButtons type="Sign up" />
-
     </Form>
   );
 };

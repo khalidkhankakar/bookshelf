@@ -26,7 +26,6 @@ export function BookPagination({
   // searchParams with a provided key/value pair
   const handleChangePage = useCallback(
     (name: string, value: number) => {
-      console.log("click");
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value.toString());
       return params.toString();

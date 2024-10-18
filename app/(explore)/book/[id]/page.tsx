@@ -21,7 +21,6 @@ const page = async ({ params }: { params: { id: string } }) => {
 
   if (session?.user) {
     const user = await fetchUserProfileById(session?.user?.id as string);
-    console.log({ user });
     saveBookArr = user?.savedBooks || [];
     haveToReadBookArr = user?.haveToReadBooks || [];
     likesBookArr = user?.likedBooks || [];

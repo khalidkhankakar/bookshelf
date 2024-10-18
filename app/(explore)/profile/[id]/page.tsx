@@ -5,8 +5,6 @@ import { fetchUserProfileById } from '@/lib/actions/user.actions';
 const page = async ({params}:{params:{id:string}}) => {
 
   const id = params.id;
-  console.log({id})
-
   if(!id) return <div>User not found</div>
 
   const user = await fetchUserProfileById(id)

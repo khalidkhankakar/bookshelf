@@ -8,12 +8,12 @@ const Features = () => {
         <div className="mb-14 text-center">
             <span
                 className="py-1 px-4 bg-indigo-100 rounded-full text-xs font-medium text-indigo-600 text-center">Features</span>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl text-center font-bold text-white py-5">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl text-center font-bold text-[#00E599] py-5">
                 Revolutionary Features
             </h2>
             <p className="text-lg font-normal text-gray-500 max-w-md md:max-w-2xl mx-auto">
-                Provides advanced features like time tracking, integrating with
-                third party apps (calendar / Google drive), creating subtasks.
+                Provides advanced features like Search funtionality, reading mode,
+                secure payment method, create your own book.
             </p>
         </div>
         <div

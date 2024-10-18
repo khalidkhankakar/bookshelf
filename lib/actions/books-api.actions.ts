@@ -26,7 +26,6 @@ export const fetchBookById = async (id: string) => {
       (category: any) => category.category
     );
     const bookAuthorArr = book?.author?.map((author: any) => author.author);
-    console.log({ bookAuthorArr });
     return { book, bookCategoryArr, bookAuthorArr };
   } catch (error) {
     console.log(error);
@@ -103,7 +102,6 @@ export const estimatedTotalBooks = async (
     .from(bookCategoryTable)
     .where(eq(bookCategoryTable.name, category));
   totalResults = allRes[0].count || 0;
-  console.log({ totalResults });
   const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
   return { totalResults, totalPages };
 };
