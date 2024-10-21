@@ -22,7 +22,7 @@ import {
   userSavedBooksTable,
   UserTable,
   VerificationTokenTable,
-} from "../db/schema";
+} from "../db/schemas";
 import { count, eq } from "drizzle-orm";
 import crypto from "crypto";
 import { sendEmail } from "./resend-email.actions";

@@ -12,8 +12,6 @@ const page = async ({params}:{params:{id:string}}) => {
   if(!user) return <div>User not found</div>
 
   return (
-    <div className='text-white'>
-    
     <UserProfile name={user.name}
     email={user.email}
     userId={id}
@@ -25,8 +23,6 @@ const page = async ({params}:{params:{id:string}}) => {
     coverImageUrl={user.coverImage || 'https://dummyimage.com/720x400'}
     books={user.userBooks || []}
     />
-
-    </div>
   )
 }
 

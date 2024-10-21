@@ -32,7 +32,6 @@ export default async function UserProfile({
   books,
 }: UserProfileProps) {
   const session = await auth();
-
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       <div className="relative h-48 md:h-64 lg:h-80">
@@ -125,7 +124,10 @@ export default async function UserProfile({
                     bookDesc={book.book.description}
                     bookImage={book.book.image}
                     bookRating={book.book.rating}
-                  />
+                    isValidUser={session?.user?.id ? session?.user?.id === userId : false}
+                    userId={session?.user?.id}
+                    />
+                    
                 ))}
               </div>
             </div>

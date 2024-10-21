@@ -1,7 +1,7 @@
 "use server";
 import { sql } from "drizzle-orm";
 import { db } from "../db/drizzle";
-import { bookCategoryTable, BookTable, UserTable } from "../db/schema";
+import { bookCategoryTable, BookTable, UserTable } from "../db/schemas";
 
 export const fetchGlobalResults = async ({
   query,

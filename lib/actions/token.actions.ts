@@ -1,7 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { UserTable, VerificationTokenTable } from "../db/schema";
+import { UserTable, VerificationTokenTable } from "../db/schemas";
 import { db } from "../db/drizzle";
 
 export const findByTokenAndVerify = async (token: string) => {
