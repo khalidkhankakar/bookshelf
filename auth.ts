@@ -4,6 +4,7 @@ import authConfig from "./auth.config";
 import { findUserByEmail } from "./lib/actions/user.actions";
 import { db } from "./lib/db/drizzle";
 import { UserTable } from "./lib/db/schema";
+import env from "./env";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
@@ -65,7 +66,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/auth/sign-in",
     error: "/auth/auth-error",
   },
-  secret: process.env.AUTH_SECRET,
+  secret: env.AUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60,

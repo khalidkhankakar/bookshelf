@@ -31,6 +31,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
+    "dotenv-expand": "^11.0.6",
     "drizzle-orm": "^0.33.0",
     "firebase": "^10.13.2",
     "lucide-react": "^0.441.0",

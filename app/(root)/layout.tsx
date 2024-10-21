@@ -1,3 +1,4 @@
+import Footer from "@/components/shared/footer";
 import Navbar from "@/components/shared/navbar";
 import { Metadata } from "next";
 import React from "react";
@@ -16,6 +17,7 @@ const RootLayout = ({
       <div className="container mx-auto px-4">
         {children}
       </div>
+      <Footer />
     </div>
   );
 };

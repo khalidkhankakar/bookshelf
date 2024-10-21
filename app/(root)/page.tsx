@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Features from "./(components)/features";
 import FeaturedSection from "./(components)/featured-section";
-import Footer from "@/components/shared/footer";
 
 export default async function Home() {
 
@@ -31,7 +30,6 @@ export default async function Home() {
       </div>
       <FeaturedSection />
       <Features />
-      <Footer />
     </div>
   );
 }

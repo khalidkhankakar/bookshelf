@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {getToken} from 'next-auth/jwt'
 import { AUTH_API_PREFIX, AUTH_ROUTES, PUBLIC_ROUTES } from "./route";
+import env from "./env";
 
 
 export async function middleware(req: NextRequest) {
@@ -8,7 +9,7 @@ export async function middleware(req: NextRequest) {
 
     const {nextUrl} = req;
 
-    const authToken = await getToken({req,secret:process.env.AUTH_SECRET || "QK3GhEGDarNrIscb8uRNBkSBzQxBvXXyB3MD8A333so="})
+    const authToken = await getToken({req,secret:env.AUTH_SECRET  })
 
     const isApiAuthRoutes = req.nextUrl.pathname.startsWith(AUTH_API_PREFIX)
 

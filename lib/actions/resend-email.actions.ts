@@ -1,7 +1,8 @@
 'use server'
 import ResendEmailTemplate from '@/app/auth/(components)/resend-email-template';
+import env from '@/env';
 import { Resend } from 'resend';
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const sendEmail = async ({name,email,token}:{name:string,email:string,token:string}) => {
     try {

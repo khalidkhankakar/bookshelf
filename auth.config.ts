@@ -5,16 +5,17 @@ import Credentials from "next-auth/providers/credentials";
 import { findUserByEmail } from "./lib/actions/user.actions";
 import bycrypt from "bcryptjs";
 import { signInSchema } from "./lib/types";
+import env from "./env";
 
 export default {
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: env.AUTH_GOOGLE_ID,
+      clientSecret: env.AUTH_GOOGLE_SECRET,
     }),
     GitHubProvider({
-      clientId: process.env.AUTH_GITHUB_ID,
-      clientSecret: process.env.AUTH_GITHUB_SECRET,
+      clientId: env.AUTH_GITHUB_ID,
+      clientSecret: env.AUTH_GITHUB_SECRET,
     }),
     Credentials({
       async authorize(credentials) {
